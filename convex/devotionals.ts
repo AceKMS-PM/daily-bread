@@ -16,9 +16,7 @@ export const getTodayDevotional = query({
     const today = new Date().toISOString().split("T")[0];
     const devotional = await ctx.db
       .query("devotionals")
-      .withIndex("by_status_date", (q) =>
-        q.eq("status", "published").eq("scheduledFor", today)
-      )
+      .withIndex("by_status_date", (q) => q.eq("status", "published").eq("scheduledFor", today))
       .first();
     if (!devotional) return null;
     const author = await ctx.db.get(devotional.authorId);
@@ -29,11 +27,11 @@ export const getTodayDevotional = query({
 export const getDevotionalByDate = query({
   args: { date: v.string() },
   handler: async (ctx, { date }) => {
+    // Valider le format de date
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
     const devotional = await ctx.db
       .query("devotionals")
-      .withIndex("by_status_date", (q) =>
-        q.eq("status", "published").eq("scheduledFor", date)
-      )
+      .withIndex("by_status_date", (q) => q.eq("status", "published").eq("scheduledFor", date))
       .first();
     if (!devotional) return null;
     const author = await ctx.db.get(devotional.authorId);
@@ -44,11 +42,12 @@ export const getDevotionalByDate = query({
 export const getRecentDevotionals = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, { limit = 10 }) => {
+    const safeLimit = Math.min(Math.max(limit ?? 10, 1), 50);
     const devotionals = await ctx.db
       .query("devotionals")
       .withIndex("by_status", (q) => q.eq("status", "published"))
       .order("desc")
-      .take(limit);
+      .take(safeLimit);
     return Promise.all(
       devotionals.map(async (d) => {
         const author = await ctx.db.get(d.authorId);
@@ -62,7 +61,7 @@ export const getAllDevotionals = query({
   handler: async (ctx) => {
     const user = await getCurrentUserRecord(ctx);
     if (!user || user.role !== "admin") throw new Error("Accès refusé");
-    const devotionals = await ctx.db.query("devotionals").order("desc").collect();
+    const devotionals = await ctx.db.query("devotionals").order("desc").take(200);
     return Promise.all(
       devotionals.map(async (d) => {
         const author = await ctx.db.get(d.authorId);
@@ -77,6 +76,11 @@ export const getDevotionalById = query({
   handler: async (ctx, { id }) => {
     const devotional = await ctx.db.get(id);
     if (!devotional) return null;
+    // Seuls les admins voient les brouillons
+    if (devotional.status !== "published") {
+      const user = await getCurrentUserRecord(ctx);
+      if (!user || user.role !== "admin") return null;
+    }
     const author = await ctx.db.get(devotional.authorId);
     return { ...devotional, author };
   },
@@ -89,9 +93,7 @@ export const getUserReactions = query({
     if (!user) return [];
     return ctx.db
       .query("reactions")
-      .withIndex("by_user_devotional", (q) =>
-        q.eq("userId", user._id).eq("devotionalId", devotionalId)
-      )
+      .withIndex("by_user_devotional", (q) => q.eq("userId", user._id).eq("devotionalId", devotionalId))
       .collect();
   },
 });
@@ -116,6 +118,24 @@ export const createDevotional = mutation({
   handler: async (ctx, args) => {
     const user = await getCurrentUserRecord(ctx);
     if (!user || user.role !== "admin") throw new Error("Accès refusé");
+
+    // Valider le format de date
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(args.scheduledFor)) throw new Error("Format de date invalide.");
+
+    // Vérifier doublon de date si publié
+    if (args.status === "published") {
+      const existing = await ctx.db
+        .query("devotionals")
+        .withIndex("by_status_date", (q) => q.eq("status", "published").eq("scheduledFor", args.scheduledFor))
+        .first();
+      if (existing) throw new Error(`Une dévotion est déjà publiée pour le ${args.scheduledFor}.`);
+    }
+
+    // Limites de longueur
+    if (args.title.length > 200) throw new Error("Le titre est trop long (max 200 caractères).");
+    if (args.content.length > 10000) throw new Error("Le contenu est trop long (max 10 000 caractères).");
+    if (args.tags.length > 10) throw new Error("Maximum 10 tags.");
+
     return ctx.db.insert("devotionals", {
       ...args,
       authorId: user._id,
@@ -147,12 +167,18 @@ export const updateDevotional = mutation({
   handler: async (ctx, { id, ...updates }) => {
     const user = await getCurrentUserRecord(ctx);
     if (!user || user.role !== "admin") throw new Error("Accès refusé");
-    const cleanUpdates = Object.fromEntries(
-      Object.entries(updates).filter(([, v]) => v !== undefined)
-    );
-    if (updates.status === "published") {
-      (cleanUpdates as Record<string, unknown>).publishedAt = Date.now();
+
+    // Vérifier doublon si on publie
+    if (updates.status === "published" && updates.scheduledFor) {
+      const existing = await ctx.db
+        .query("devotionals")
+        .withIndex("by_status_date", (q) => q.eq("status", "published").eq("scheduledFor", updates.scheduledFor!))
+        .first();
+      if (existing && existing._id !== id) throw new Error(`Une dévotion est déjà publiée pour le ${updates.scheduledFor}.`);
     }
+
+    const cleanUpdates = Object.fromEntries(Object.entries(updates).filter(([, v]) => v !== undefined));
+    if (updates.status === "published") (cleanUpdates as any).publishedAt = Date.now();
     await ctx.db.patch(id, cleanUpdates);
   },
 });
@@ -173,23 +199,16 @@ export const toggleReaction = mutation({
   },
   handler: async (ctx, { devotionalId, type }) => {
     const user = await getCurrentUserRecord(ctx);
-    if (!user) throw new Error("Non authentifié");
+    if (!user) throw new Error("Vous devez être connecté pour réagir.");
     const existing = await ctx.db
       .query("reactions")
-      .withIndex("by_user_devotional", (q) =>
-        q.eq("userId", user._id).eq("devotionalId", devotionalId)
-      )
+      .withIndex("by_user_devotional", (q) => q.eq("userId", user._id).eq("devotionalId", devotionalId))
       .filter((q) => q.eq(q.field("type"), type))
       .first();
     if (existing) {
       await ctx.db.delete(existing._id);
     } else {
-      await ctx.db.insert("reactions", {
-        userId: user._id,
-        devotionalId,
-        type,
-        createdAt: Date.now(),
-      });
+      await ctx.db.insert("reactions", { userId: user._id, devotionalId, type, createdAt: Date.now() });
     }
   },
 });
@@ -198,7 +217,7 @@ export const incrementViewCount = mutation({
   args: { id: v.id("devotionals") },
   handler: async (ctx, { id }) => {
     const devotional = await ctx.db.get(id);
-    if (!devotional) return;
+    if (!devotional || devotional.status !== "published") return;
     await ctx.db.patch(id, { viewCount: devotional.viewCount + 1 });
   },
 });

@@ -1,12 +1,11 @@
 import { convexAuth } from "@convex-dev/auth/server";
-import GitHub from "@auth/core/providers/github";
-import Google from "@auth/core/providers/google";
 import { Password } from "@convex-dev/auth/providers/Password";
 
 export const { auth, signIn, signOut, store } = convexAuth({
   providers: [
-    GitHub,
-    Google,
     Password,
+    // Pour activer GitHub/Google, décommentez et ajoutez les clés dans Convex :
+    // GitHub,  → GITHUB_ID + GITHUB_SECRET
+    // Google,  → GOOGLE_ID + GOOGLE_SECRET
   ],
 });
