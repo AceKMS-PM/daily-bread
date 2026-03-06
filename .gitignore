@@ -2,7 +2,9 @@ node_modules/
 dist/
 .env.local
 .env
+.env.production
 .convex/
 convex/_generated/
 *.local
 .DS_Store
+.vercel
