@@ -1,0 +1,6 @@
+{
+  "functions": "convex/",
+  "project": "daily-bread",
+  "team": "your-team",
+  "authConfig": "convex/auth.config.ts"
+}

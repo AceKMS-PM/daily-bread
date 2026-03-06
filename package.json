@@ -1,21 +1,44 @@
 {
-  "name": "bun-react-template",
-  "version": "0.1.0",
+  "name": "daily-bread",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun --hot src/index.ts",
-    "build": "bun build ./src/index.html --outdir=dist --sourcemap --target=browser --minify --define:process.env.NODE_ENV='\"production\"' --env='BUN_PUBLIC_*'",
-    "start": "NODE_ENV=production bun src/index.ts"
+    "dev": "bunx concurrently \"bun run dev:frontend\" \"bun run dev:convex\"",
+    "dev:frontend": "bunx vite --port 3000",
+    "dev:convex": "bunx convex dev",
+    "build": "bunx vite build",
+    "preview": "bunx vite preview",
+    "convex:deploy": "bunx convex deploy",
+    "lint": "bunx eslint src --ext .ts,.tsx",
+    "type-check": "bunx tsc --noEmit"
   },
   "dependencies": {
-    "convex": "^1.32.0",
-    "react": "^19",
-    "react-dom": "^19"
+    "convex": "^1.13.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "react-router-dom": "^6.23.0",
+    "date-fns": "^3.6.0",
+    "lucide-react": "^0.390.0",
+    "@radix-ui/react-dialog": "^1.1.0",
+    "@radix-ui/react-dropdown-menu": "^2.1.0",
+    "@radix-ui/react-select": "^2.1.0",
+    "@radix-ui/react-toast": "^1.2.0",
+    "@radix-ui/react-avatar": "^1.1.0",
+    "@radix-ui/react-tabs": "^1.1.0",
+    "framer-motion": "^11.2.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.3.0"
   },
   "devDependencies": {
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@types/bun": "latest"
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "autoprefixer": "^10.4.19",
+    "concurrently": "^8.2.0",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.0"
   }
 }
