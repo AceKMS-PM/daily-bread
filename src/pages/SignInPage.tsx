@@ -25,9 +25,11 @@ export default function SignInPage() {
       } else {
         await signIn("password", { email, password, flow: "signIn" });
       }
-      // Create/update our user profile
-      await ensureUser();
-      navigate("/");
+      // Attendre un peu que la session soit établie
+      setTimeout(async () => {
+        await ensureUser();
+        navigate("/");
+      }, 1000);
     } catch (e: any) {
       setError(e.message ?? "Une erreur est survenue");
     } finally {

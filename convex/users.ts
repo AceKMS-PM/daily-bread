@@ -2,7 +2,6 @@ import { v } from "convex/values";
 import { mutation, query, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-/** Helper */
 async function getCurrentUserRecord(ctx: any) {
   const authUserId = await getAuthUserId(ctx);
   if (!authUserId) return null;
@@ -12,74 +11,53 @@ async function getCurrentUserRecord(ctx: any) {
     .first();
 }
 
-/** Get current user */
 export const getCurrentUser = query({
-  handler: async (ctx) => {
-    return getCurrentUserRecord(ctx);
-  },
+  handler: async (ctx) => getCurrentUserRecord(ctx),
 });
 
-/** Called by @convex-dev/auth internally to create/update users */
-export const createOrUpdateUser = internalMutation({
-  args: {
-    userId: v.string(),
-    email: v.optional(v.string()),
-    name: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
-  },
-  handler: async (ctx, { userId, email, name, imageUrl }) => {
-    const existing = await ctx.db
-      .query("users")
-      .withIndex("by_user_id", (q: any) => q.eq("userId", userId))
-      .first();
-
-    if (existing) {
-      await ctx.db.patch(existing._id, {
-        lastSeen: Date.now(),
-        ...(name && { name }),
-        ...(imageUrl && { imageUrl }),
-      });
-      return existing._id;
-    }
-
-    const userCount = await ctx.db.query("users").collect();
-    const role = userCount.length === 0 ? "admin" : "member";
-
-    return ctx.db.insert("users", {
-      userId,
-      email: email ?? "",
-      name: name ?? email?.split("@")[0] ?? "Membre",
-      imageUrl,
-      role,
-      createdAt: Date.now(),
-      lastSeen: Date.now(),
-    });
-  },
-});
-
-/** Public mutation — ensure user exists after sign-in */
+/** Appelé après chaque connexion — complète le profil si manquant */
 export const ensureUser = mutation({
   args: {},
   handler: async (ctx) => {
     const authUserId = await getAuthUserId(ctx);
     if (!authUserId) return null;
 
-    const existing = await ctx.db
-      .query("users")
-      .withIndex("by_user_id", (q: any) => q.eq("userId", authUserId))
-      .first();
-
-    if (existing) {
-      await ctx.db.patch(existing._id, { lastSeen: Date.now() });
-      return existing._id;
-    }
-
     const authUser = await ctx.db.get(authUserId as any);
     const email = (authUser as any)?.email ?? "";
     const name = (authUser as any)?.name ?? email.split("@")[0] ?? "Membre";
 
+    // Chercher par userId OU par email (car Auth crée d'abord sans userId)
+    let existing = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q: any) => q.eq("userId", authUserId))
+      .first();
+
+    if (!existing && email) {
+      existing = await ctx.db
+        .query("users")
+        .withIndex("by_email", (q: any) => q.eq("email", email))
+        .first();
+    }
+
+    if (existing) {
+      // Compléter les champs manquants
+      const updates: any = { lastSeen: Date.now() };
+      if (!existing.userId) updates.userId = authUserId;
+      if (!existing.name) updates.name = name;
+      if (!existing.createdAt) updates.createdAt = Date.now();
+      if (!existing.role) {
+        // Premier utilisateur avec un role = admin
+        const withRole = (await ctx.db.query("users").collect()).filter(u => u.role);
+        updates.role = withRole.length === 0 ? "admin" : "member";
+      }
+      await ctx.db.patch(existing._id, updates);
+      return existing._id;
+    }
+
+    // Créer un nouveau profil complet
     const userCount = await ctx.db.query("users").collect();
-    const role = userCount.length === 0 ? "admin" : "member";
+    const withRole = userCount.filter(u => u.role);
+    const role = withRole.length === 0 ? "admin" : "member";
 
     return ctx.db.insert("users", {
       userId: authUserId,
@@ -92,7 +70,6 @@ export const ensureUser = mutation({
   },
 });
 
-/** Get all users (admin only) */
 export const getAllUsers = query({
   handler: async (ctx) => {
     const user = await getCurrentUserRecord(ctx);
@@ -101,7 +78,6 @@ export const getAllUsers = query({
   },
 });
 
-/** Promote/demote user (admin only) */
 export const setUserRole = mutation({
   args: {
     targetUserId: v.id("users"),
