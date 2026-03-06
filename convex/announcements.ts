@@ -1,15 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
-
-async function getCurrentUserRecord(ctx: any) {
-  const authUserId = await getAuthUserId(ctx);
-  if (!authUserId) return null;
-  return ctx.db
-    .query("users")
-    .withIndex("by_user_id", (q: any) => q.eq("userId", authUserId))
-    .first();
-}
+import { requireAdmin } from "./helpers";
 
 export const getAnnouncements = query({
   handler: async (ctx) => {
@@ -25,8 +16,7 @@ export const createAnnouncement = mutation({
     isPinned: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUserRecord(ctx);
-    if (!user || user.role !== "admin") throw new Error("Accès refusé");
+    const user = await requireAdmin(ctx);
     return ctx.db.insert("announcements", {
       ...args,
       authorId: user._id,
@@ -38,8 +28,7 @@ export const createAnnouncement = mutation({
 export const deleteAnnouncement = mutation({
   args: { id: v.id("announcements") },
   handler: async (ctx, { id }) => {
-    const user = await getCurrentUserRecord(ctx);
-    if (!user || user.role !== "admin") throw new Error("Accès refusé");
+    await requireAdmin(ctx);
     await ctx.db.delete(id);
   },
 });

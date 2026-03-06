@@ -1,15 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
-
-async function getCurrentUserRecord(ctx: any) {
-  const authUserId = await getAuthUserId(ctx);
-  if (!authUserId) return null;
-  return ctx.db
-    .query("users")
-    .withIndex("by_user_id", (q: any) => q.eq("userId", authUserId))
-    .first();
-}
+import { getOrCreateUserRecord, requireAdmin, requireAuth } from "./helpers";
 
 export const getTodayDevotional = query({
   handler: async (ctx) => {
@@ -27,7 +18,6 @@ export const getTodayDevotional = query({
 export const getDevotionalByDate = query({
   args: { date: v.string() },
   handler: async (ctx, { date }) => {
-    // Valider le format de date
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return null;
     const devotional = await ctx.db
       .query("devotionals")
@@ -59,8 +49,7 @@ export const getRecentDevotionals = query({
 
 export const getAllDevotionals = query({
   handler: async (ctx) => {
-    const user = await getCurrentUserRecord(ctx);
-    if (!user || user.role !== "admin") throw new Error("Accès refusé");
+    await requireAdmin(ctx);
     const devotionals = await ctx.db.query("devotionals").order("desc").take(200);
     return Promise.all(
       devotionals.map(async (d) => {
@@ -76,9 +65,8 @@ export const getDevotionalById = query({
   handler: async (ctx, { id }) => {
     const devotional = await ctx.db.get(id);
     if (!devotional) return null;
-    // Seuls les admins voient les brouillons
     if (devotional.status !== "published") {
-      const user = await getCurrentUserRecord(ctx);
+      const user = await getOrCreateUserRecord(ctx);
       if (!user || user.role !== "admin") return null;
     }
     const author = await ctx.db.get(devotional.authorId);
@@ -89,7 +77,7 @@ export const getDevotionalById = query({
 export const getUserReactions = query({
   args: { devotionalId: v.id("devotionals") },
   handler: async (ctx, { devotionalId }) => {
-    const user = await getCurrentUserRecord(ctx);
+    const user = await getOrCreateUserRecord(ctx);
     if (!user) return [];
     return ctx.db
       .query("reactions")
@@ -116,13 +104,13 @@ export const createDevotional = mutation({
     status: v.union(v.literal("draft"), v.literal("published"), v.literal("scheduled")),
   },
   handler: async (ctx, args) => {
-    const user = await getCurrentUserRecord(ctx);
-    if (!user || user.role !== "admin") throw new Error("Accès refusé");
+    const user = await requireAdmin(ctx);
 
-    // Valider le format de date
     if (!/^\d{4}-\d{2}-\d{2}$/.test(args.scheduledFor)) throw new Error("Format de date invalide.");
+    if (args.title.length > 200) throw new Error("Titre trop long (max 200 caractères).");
+    if (args.content.length > 10000) throw new Error("Contenu trop long (max 10 000 caractères).");
+    if (args.tags.length > 10) throw new Error("Maximum 10 tags.");
 
-    // Vérifier doublon de date si publié
     if (args.status === "published") {
       const existing = await ctx.db
         .query("devotionals")
@@ -130,11 +118,6 @@ export const createDevotional = mutation({
         .first();
       if (existing) throw new Error(`Une dévotion est déjà publiée pour le ${args.scheduledFor}.`);
     }
-
-    // Limites de longueur
-    if (args.title.length > 200) throw new Error("Le titre est trop long (max 200 caractères).");
-    if (args.content.length > 10000) throw new Error("Le contenu est trop long (max 10 000 caractères).");
-    if (args.tags.length > 10) throw new Error("Maximum 10 tags.");
 
     return ctx.db.insert("devotionals", {
       ...args,
@@ -165,10 +148,8 @@ export const updateDevotional = mutation({
     status: v.optional(v.union(v.literal("draft"), v.literal("published"), v.literal("scheduled"))),
   },
   handler: async (ctx, { id, ...updates }) => {
-    const user = await getCurrentUserRecord(ctx);
-    if (!user || user.role !== "admin") throw new Error("Accès refusé");
+    await requireAdmin(ctx);
 
-    // Vérifier doublon si on publie
     if (updates.status === "published" && updates.scheduledFor) {
       const existing = await ctx.db
         .query("devotionals")
@@ -186,8 +167,7 @@ export const updateDevotional = mutation({
 export const deleteDevotional = mutation({
   args: { id: v.id("devotionals") },
   handler: async (ctx, { id }) => {
-    const user = await getCurrentUserRecord(ctx);
-    if (!user || user.role !== "admin") throw new Error("Accès refusé");
+    await requireAdmin(ctx);
     await ctx.db.delete(id);
   },
 });
@@ -198,8 +178,7 @@ export const toggleReaction = mutation({
     type: v.union(v.literal("amen"), v.literal("heart"), v.literal("fire"), v.literal("pray")),
   },
   handler: async (ctx, { devotionalId, type }) => {
-    const user = await getCurrentUserRecord(ctx);
-    if (!user) throw new Error("Vous devez être connecté pour réagir.");
+    const user = await requireAuth(ctx);
     const existing = await ctx.db
       .query("reactions")
       .withIndex("by_user_devotional", (q) => q.eq("userId", user._id).eq("devotionalId", devotionalId))
