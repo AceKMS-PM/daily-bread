@@ -48,14 +48,7 @@ export default function App() {
         </Route>
 
         {/* Routes admin — double protection : auth + rôle admin */}
-        <Route
-          path="/admin"
-          element={
-            <Authenticated fallback={<Navigate to="/connexion" replace />}>
-              <AdminGuard />
-            </Authenticated>
-          }
-        >
+        <Route path="/admin" element={<AdminGuard />}>
           <Route element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="devotionals" element={<AdminDevotionals />} />
