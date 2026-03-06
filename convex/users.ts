@@ -1,8 +1,8 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-/** Helper — get our users record from auth session */
+/** Helper */
 async function getCurrentUserRecord(ctx: any) {
   const authUserId = await getAuthUserId(ctx);
   if (!authUserId) return null;
@@ -19,7 +19,45 @@ export const getCurrentUser = query({
   },
 });
 
-/** Public mutation — create/update user profile after sign-in */
+/** Called by @convex-dev/auth internally to create/update users */
+export const createOrUpdateUser = internalMutation({
+  args: {
+    userId: v.string(),
+    email: v.optional(v.string()),
+    name: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+  },
+  handler: async (ctx, { userId, email, name, imageUrl }) => {
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_user_id", (q: any) => q.eq("userId", userId))
+      .first();
+
+    if (existing) {
+      await ctx.db.patch(existing._id, {
+        lastSeen: Date.now(),
+        ...(name && { name }),
+        ...(imageUrl && { imageUrl }),
+      });
+      return existing._id;
+    }
+
+    const userCount = await ctx.db.query("users").collect();
+    const role = userCount.length === 0 ? "admin" : "member";
+
+    return ctx.db.insert("users", {
+      userId,
+      email: email ?? "",
+      name: name ?? email?.split("@")[0] ?? "Membre",
+      imageUrl,
+      role,
+      createdAt: Date.now(),
+      lastSeen: Date.now(),
+    });
+  },
+});
+
+/** Public mutation — ensure user exists after sign-in */
 export const ensureUser = mutation({
   args: {},
   handler: async (ctx) => {
@@ -36,7 +74,7 @@ export const ensureUser = mutation({
       return existing._id;
     }
 
-    const authUser = await ctx.db.get(authUserId);
+    const authUser = await ctx.db.get(authUserId as any);
     const email = (authUser as any)?.email ?? "";
     const name = (authUser as any)?.name ?? email.split("@")[0] ?? "Membre";
 

@@ -4,19 +4,18 @@ import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
   ...authTables,
-  // Users table — linked to authTables via userId
+  // Users table — tous les champs optionnels car @convex-dev/auth crée d'abord avec juste {email}
   users: defineTable({
-    userId:  v.string(),
+    userId: v.optional(v.string()),
     email: v.string(),
-    name: v.string(),
+    name: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
-    role: v.union(v.literal("admin"), v.literal("member")),
-    createdAt: v.number(),
+    role: v.optional(v.union(v.literal("admin"), v.literal("member"))),
+    createdAt: v.optional(v.number()),
     lastSeen: v.optional(v.number()),
   })
     .index("by_user_id", ["userId"])
-    .index("by_email", ["email"])
-    .index("by_role", ["role"]),
+    .index("by_email", ["email"]),
 
   // Daily devotionals
   devotionals: defineTable({
