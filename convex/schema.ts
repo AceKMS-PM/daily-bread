@@ -4,9 +4,9 @@ import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
   ...authTables,
-  // Users table
+  // Users table — linked to authTables via userId
   users: defineTable({
-    clerkId: v.string(),
+    userId:  v.string(),
     email: v.string(),
     name: v.string(),
     imageUrl: v.optional(v.string()),
@@ -14,7 +14,7 @@ export default defineSchema({
     createdAt: v.number(),
     lastSeen: v.optional(v.number()),
   })
-    .index("by_clerk_id", ["clerkId"])
+    .index("by_user_id", ["userId"])
     .index("by_email", ["email"])
     .index("by_role", ["role"]),
 

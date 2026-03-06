@@ -2,48 +2,51 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
+/** Helper — get our users record from auth session */
+async function getCurrentUserRecord(ctx: any) {
+  const authUserId = await getAuthUserId(ctx);
+  if (!authUserId) return null;
+  return ctx.db
+    .query("users")
+    .withIndex("by_user_id", (q: any) => q.eq("userId", authUserId))
+    .first();
+}
+
 /** Get current user */
 export const getCurrentUser = query({
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return null;
-
-    return ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
+    return getCurrentUserRecord(ctx);
   },
 });
 
-/** Create or update user on sign-in */
-export const upsertUser = mutation({
-  args: {
-    clerkId: v.string(),
-    email: v.string(),
-    name: v.string(),
-    imageUrl: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
+/** Public mutation — create/update user profile after sign-in */
+export const ensureUser = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const authUserId = await getAuthUserId(ctx);
+    if (!authUserId) return null;
+
     const existing = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", args.clerkId))
+      .withIndex("by_user_id", (q: any) => q.eq("userId", authUserId))
       .first();
 
     if (existing) {
-      await ctx.db.patch(existing._id, {
-        name: args.name,
-        imageUrl: args.imageUrl,
-        lastSeen: Date.now(),
-      });
+      await ctx.db.patch(existing._id, { lastSeen: Date.now() });
       return existing._id;
     }
 
-    // First user becomes admin
+    const authUser = await ctx.db.get(authUserId);
+    const email = (authUser as any)?.email ?? "";
+    const name = (authUser as any)?.name ?? email.split("@")[0] ?? "Membre";
+
     const userCount = await ctx.db.query("users").collect();
     const role = userCount.length === 0 ? "admin" : "member";
 
     return ctx.db.insert("users", {
-      ...args,
+      userId: authUserId,
+      email,
+      name,
       role,
       createdAt: Date.now(),
       lastSeen: Date.now(),
@@ -54,16 +57,8 @@ export const upsertUser = mutation({
 /** Get all users (admin only) */
 export const getAllUsers = query({
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Non authentifié");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
-    if (user?.role !== "admin") throw new Error("Accès refusé");
-
+    const user = await getCurrentUserRecord(ctx);
+    if (!user || user.role !== "admin") throw new Error("Accès refusé");
     return ctx.db.query("users").collect();
   },
 });
@@ -75,16 +70,8 @@ export const setUserRole = mutation({
     role: v.union(v.literal("admin"), v.literal("member")),
   },
   handler: async (ctx, { targetUserId, role }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Non authentifié");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
-    if (user?.role !== "admin") throw new Error("Accès refusé");
-
+    const user = await getCurrentUserRecord(ctx);
+    if (!user || user.role !== "admin") throw new Error("Accès refusé");
     await ctx.db.patch(targetUserId, { role });
   },
 });

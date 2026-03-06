@@ -2,9 +2,15 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
-// ── QUERIES ────────────────────────────────────────────────────
+async function getCurrentUserRecord(ctx: any) {
+  const authUserId = await getAuthUserId(ctx);
+  if (!authUserId) return null;
+  return ctx.db
+    .query("users")
+    .withIndex("by_user_id", (q: any) => q.eq("userId", authUserId))
+    .first();
+}
 
-/** Get today's devotional */
 export const getTodayDevotional = query({
   handler: async (ctx) => {
     const today = new Date().toISOString().split("T")[0];
@@ -14,15 +20,12 @@ export const getTodayDevotional = query({
         q.eq("status", "published").eq("scheduledFor", today)
       )
       .first();
-
     if (!devotional) return null;
-
     const author = await ctx.db.get(devotional.authorId);
     return { ...devotional, author };
   },
 });
 
-/** Get devotional by date */
 export const getDevotionalByDate = query({
   args: { date: v.string() },
   handler: async (ctx, { date }) => {
@@ -32,14 +35,12 @@ export const getDevotionalByDate = query({
         q.eq("status", "published").eq("scheduledFor", date)
       )
       .first();
-
     if (!devotional) return null;
     const author = await ctx.db.get(devotional.authorId);
     return { ...devotional, author };
   },
 });
 
-/** Get recent published devotionals */
 export const getRecentDevotionals = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, { limit = 10 }) => {
@@ -48,7 +49,6 @@ export const getRecentDevotionals = query({
       .withIndex("by_status", (q) => q.eq("status", "published"))
       .order("desc")
       .take(limit);
-
     return Promise.all(
       devotionals.map(async (d) => {
         const author = await ctx.db.get(d.authorId);
@@ -58,21 +58,11 @@ export const getRecentDevotionals = query({
   },
 });
 
-/** Get all devotionals (admin) */
 export const getAllDevotionals = query({
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Non authentifié");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
-    if (user?.role !== "admin") throw new Error("Accès refusé");
-
+    const user = await getCurrentUserRecord(ctx);
+    if (!user || user.role !== "admin") throw new Error("Accès refusé");
     const devotionals = await ctx.db.query("devotionals").order("desc").collect();
-
     return Promise.all(
       devotionals.map(async (d) => {
         const author = await ctx.db.get(d.authorId);
@@ -82,7 +72,6 @@ export const getAllDevotionals = query({
   },
 });
 
-/** Get devotional by ID */
 export const getDevotionalById = query({
   args: { id: v.id("devotionals") },
   handler: async (ctx, { id }) => {
@@ -93,20 +82,11 @@ export const getDevotionalById = query({
   },
 });
 
-/** Get user reactions for a devotional */
 export const getUserReactions = query({
   args: { devotionalId: v.id("devotionals") },
   handler: async (ctx, { devotionalId }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return [];
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
+    const user = await getCurrentUserRecord(ctx);
     if (!user) return [];
-
     return ctx.db
       .query("reactions")
       .withIndex("by_user_devotional", (q) =>
@@ -116,9 +96,6 @@ export const getUserReactions = query({
   },
 });
 
-// ── MUTATIONS ─────────────────────────────────────────────────
-
-/** Create a new devotional (admin only) */
 export const createDevotional = mutation({
   args: {
     title: v.string(),
@@ -137,29 +114,18 @@ export const createDevotional = mutation({
     status: v.union(v.literal("draft"), v.literal("published"), v.literal("scheduled")),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Non authentifié");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
+    const user = await getCurrentUserRecord(ctx);
     if (!user || user.role !== "admin") throw new Error("Accès refusé");
-
-    const id = await ctx.db.insert("devotionals", {
+    return ctx.db.insert("devotionals", {
       ...args,
       authorId: user._id,
       publishedAt: args.status === "published" ? Date.now() : undefined,
       viewCount: 0,
       likeCount: 0,
     });
-
-    return id;
   },
 });
 
-/** Update a devotional (admin only) */
 export const updateDevotional = mutation({
   args: {
     id: v.id("devotionals"),
@@ -179,63 +145,35 @@ export const updateDevotional = mutation({
     status: v.optional(v.union(v.literal("draft"), v.literal("published"), v.literal("scheduled"))),
   },
   handler: async (ctx, { id, ...updates }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Non authentifié");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
+    const user = await getCurrentUserRecord(ctx);
     if (!user || user.role !== "admin") throw new Error("Accès refusé");
-
     const cleanUpdates = Object.fromEntries(
       Object.entries(updates).filter(([, v]) => v !== undefined)
     );
-
     if (updates.status === "published") {
       (cleanUpdates as Record<string, unknown>).publishedAt = Date.now();
     }
-
     await ctx.db.patch(id, cleanUpdates);
   },
 });
 
-/** Delete a devotional (admin only) */
 export const deleteDevotional = mutation({
   args: { id: v.id("devotionals") },
   handler: async (ctx, { id }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Non authentifié");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
+    const user = await getCurrentUserRecord(ctx);
     if (!user || user.role !== "admin") throw new Error("Accès refusé");
-
     await ctx.db.delete(id);
   },
 });
 
-/** Toggle reaction */
 export const toggleReaction = mutation({
   args: {
     devotionalId: v.id("devotionals"),
     type: v.union(v.literal("amen"), v.literal("heart"), v.literal("fire"), v.literal("pray")),
   },
   handler: async (ctx, { devotionalId, type }) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Non authentifié");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
-    if (!user) throw new Error("Utilisateur non trouvé");
-
+    const user = await getCurrentUserRecord(ctx);
+    if (!user) throw new Error("Non authentifié");
     const existing = await ctx.db
       .query("reactions")
       .withIndex("by_user_devotional", (q) =>
@@ -243,7 +181,6 @@ export const toggleReaction = mutation({
       )
       .filter((q) => q.eq(q.field("type"), type))
       .first();
-
     if (existing) {
       await ctx.db.delete(existing._id);
     } else {
@@ -257,7 +194,6 @@ export const toggleReaction = mutation({
   },
 });
 
-/** Increment view count */
 export const incrementViewCount = mutation({
   args: { id: v.id("devotionals") },
   handler: async (ctx, { id }) => {

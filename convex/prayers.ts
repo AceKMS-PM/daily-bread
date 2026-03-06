@@ -2,6 +2,15 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
+async function getCurrentUserRecord(ctx: any) {
+  const authUserId = await getAuthUserId(ctx);
+  if (!authUserId) return null;
+  return ctx.db
+    .query("users")
+    .withIndex("by_user_id", (q: any) => q.eq("userId", authUserId))
+    .first();
+}
+
 export const getPublicPrayerRequests = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, { limit = 20 }) => {
@@ -10,7 +19,6 @@ export const getPublicPrayerRequests = query({
       .withIndex("by_public", (q) => q.eq("isPublic", true))
       .order("desc")
       .take(limit);
-
     return Promise.all(
       prayers.map(async (p) => {
         const user = await ctx.db.get(p.userId);
@@ -27,16 +35,8 @@ export const createPrayerRequest = mutation({
     isPublic: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Non authentifié");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", userId))
-      .first();
-
-    if (!user) throw new Error("Utilisateur non trouvé");
-
+    const user = await getCurrentUserRecord(ctx);
+    if (!user) throw new Error("Non authentifié");
     return ctx.db.insert("prayerRequests", {
       ...args,
       userId: user._id,
