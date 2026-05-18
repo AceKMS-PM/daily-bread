@@ -101,6 +101,21 @@ export const getUserReactions = query({
   },
 });
 
+export const getReactionCounts = query({
+  args: { devotionalId: v.id("devotionals") },
+  handler: async (ctx, { devotionalId }) => {
+    const reactions = await ctx.db
+      .query("reactions")
+      .withIndex("by_devotional", (q) => q.eq("devotionalId", devotionalId))
+      .collect();
+    const counts: Record<string, number> = { amen: 0, heart: 0, fire: 0, pray: 0 };
+    for (const r of reactions) {
+      counts[r.type] = (counts[r.type] || 0) + 1;
+    }
+    return { counts, total: reactions.length };
+  },
+});
+
 export const createDevotional = mutation({
   args: {
     title: v.string(),

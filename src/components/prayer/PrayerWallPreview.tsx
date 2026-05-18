@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "convex/react";
+import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
@@ -6,7 +6,6 @@ import { fr } from "date-fns/locale";
 
 export default function PrayerWallPreview() {
   const prayers = useQuery(api.prayers.getPublicPrayerRequests, { limit: 3 });
-  const prayFor = useMutation(api.prayers.prayForRequest);
 
   if (!prayers || prayers.length === 0) return null;
 
@@ -52,17 +51,6 @@ export default function PrayerWallPreview() {
             <p className="font-serif text-sm mb-4" style={{ color: "rgba(249,241,224,0.65)", lineHeight: 1.7 }}>
               {p.content.slice(0, 120)}{p.content.length > 120 ? "..." : ""}
             </p>
-            <button
-              onClick={() => prayFor({ id: p._id })}
-              className="flex items-center gap-2 font-sans text-xs px-3 py-1.5 rounded-full transition-all"
-              style={{
-                background: "rgba(201,168,76,0.08)",
-                border: "1px solid rgba(201,168,76,0.2)",
-                color: "rgba(201,168,76,0.8)",
-              }}
-            >
-              🙏 Prier ({p.prayerCount})
-            </button>
           </div>
         ))}
       </div>

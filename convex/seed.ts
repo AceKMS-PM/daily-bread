@@ -28,6 +28,7 @@ Dieu ne nous a pas donné Sa Parole pour satisfaire notre curiosité, mais pour 
     prayer: "Seigneur, merci pour Ta Parole qui éclaire mon chemin. Dans les moments d'obscurité et de doute, rappelle-moi que Ta lumière est suffisante pour chaque pas que je dois faire aujourd'hui. Donne-moi la foi de marcher non pas par la vue, mais par la confiance en Tes promesses. Amen.",
     reflection: "Dans quel domaine de ta vie as-tu le plus besoin que la Parole de Dieu soit une lampe aujourd'hui ?",
     tags: ["parole", "lumière", "foi", "direction"],
+    coverImage: "/default-images/hero.jpg",
     status: "published",
   },
   {
@@ -52,6 +53,7 @@ Chaque acte d'obéissance est une déclaration de confiance. Nous disons à Dieu
     prayer: "Père, pardonne-moi pour les fois où j'ai préféré ma volonté à la Tienne. Apprends-moi à voir Ton commandement non comme une restriction, mais comme l'expression de Ton amour. Donne-moi un cœur qui trouve sa joie dans l'obéissance à Ta Parole. Au nom de Jésus, Amen.",
     reflection: "Y a-t-il un domaine dans ta vie où tu résistes à l'obéissance à Dieu ? Qu'est-ce que cette résistance révèle sur ta confiance en Lui ?",
     tags: ["amour", "obéissance", "foi", "confiance"],
+    coverImage: "/default-images/devotion-card.jpg",
     status: "published",
   },
   {
@@ -76,6 +78,7 @@ La vigilance chrétienne n'est pas une anxiété permanente, mais une attention 
     prayer: "Seigneur, pardonne-moi pour les moments où j'ai laissé ma vigilance spirituelle s'assoupir. Réveille en moi la flamme de la prière et la conscience de Ta présence. Apprends-moi à veiller non pas dans l'inquiétude, mais dans une confiance active qui cherche Ton visage en toute circonstance. Amen.",
     reflection: "Qu'est-ce qui, dans ta vie actuelle, menace d'assoupir ta vigilance spirituelle ? Comment pourrais-tu renforcer ton temps de prière cette semaine ?",
     tags: ["prière", "vigilance", "tentation", "force"],
+    coverImage: "/default-images/archive-1.jpg",
     status: "published",
   },
 ];
@@ -113,6 +116,7 @@ export const seedDevotionals = mutation({
         prayer: dev.prayer,
         reflection: dev.reflection,
         tags: [...dev.tags],
+        coverImage: dev.coverImage,
         status: dev.status as "draft" | "published" | "scheduled",
         authorId: admin._id,
         publishedAt: Date.now() - (daysFromNow(0) === dev.scheduledFor ? 0 : 86400000),
@@ -126,5 +130,31 @@ export const seedDevotionals = mutation({
       message: "3 dévotions par défaut ajoutées.",
       devotionals: results,
     };
+  },
+});
+
+const DEFAULT_COVERS = [
+  "/default-images/hero.jpg",
+  "/default-images/devotion-card.jpg",
+  "/default-images/archive-1.jpg",
+  "/default-images/archive-2.jpg",
+  "/default-images/archive-3.jpg",
+];
+
+export const backfillDefaultCovers = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const all = await ctx.db.query("devotionals").collect();
+    let updated = 0;
+    for (let i = 0; i < all.length; i++) {
+      const d = all[i];
+      if (!d.coverImage && !d.coverImageStorageId) {
+        await ctx.db.patch(d._id, {
+          coverImage: DEFAULT_COVERS[i % DEFAULT_COVERS.length],
+        });
+        updated++;
+      }
+    }
+    return { message: `${updated} dévotions mises à jour avec une image par défaut.` };
   },
 });

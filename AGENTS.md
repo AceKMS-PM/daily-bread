@@ -213,6 +213,42 @@
 - [ ] Newsletter email (via Convex cron)
 - [ ] Intéractions avec témoignages
 
+## Image Keywords Reference
+
+Mots-clés pour trouver des images libres de droits ou générées par IA, reflétant l'identité visuelle du projet (sacré, médiéval, doré, royal).
+
+### Croix / Symbole
+`crucifix medieval gothic`, `byzantine cross gold`, `cross illuminated manuscript stained glass`, `celtic cross ornamented`, `crucifix dark sacred chiaroscuro`, `cross sunrise dramatic`
+
+### Bougie / Lumière
+`candle flame gothic dark`, `candleholder gold baroque church`, `votive candle sacred chiaroscuro`, `menorah gold`, `candlelight monastery medieval`, `oil lamp biblical`
+
+### Paysage
+`monastery landscape mist dramatic light`, `holy land golden hour oil painting`, `mountains divine light renaissance`, `garden of gethsemane moonlight`, `road to emmaus sunset`, `wilderness biblical desert`, `sea of galilee sunrise`, `valley of the shadow gothic`
+
+### Personnages
+`saint medieval painting gothic`, `monk praying manuscript`, `prophet baroque tenebrism`, `angel renaissance gold leaf`, `pilgrim middle ages`, `jesus christ byzantine icon`, `mary magdalene devotional`, `shepherd biblical pastoral`, `king david harp renaissance`, `apostle fishing boat dramatic`
+
+### Animaux
+`lion medieval bestiary manuscript`, `lamb religious art renaissance`, `dove holy spirit gold background`, `eagle byzantine icon`, `fish symbol early christian`, `peacock medieval illuminated`, `oxen nativity romanesque`
+
+### Royal / Trône
+`crown thorns gold medieval`, `king david renaissance painting`, `magi gold frankincense myrrh`, `throne room gothic cathedral`, `royal purple velvet gold`, `scepter crown jewels medieval`
+
+### Texture / Fond
+`gold leaf texture manuscript background`, `parchment old vintage`, `stained glass gothic window`, `altar baroque gold`, `marble pillar roman sacred`, `wood carving gothic church`, `stone wall monastery ancient`
+
+### Divers
+`chalice gold holy grail`, `incense smoke church`, `prayer beads rosary`, `open bible old pages`, `scroll torah ancient`, `font baptismal stone`, `organ pipes gothic cathedral`, `bell tower monastery mist`, `ark covenant dramatic`, `manna bread of heaven`
+
+### Style général
+`illuminated manuscript`, `gothic religious art`, `byzantine iconography`, `baroque tenebrism religious`, `chiaroscuro spiritual`, `dark academia monastery`, `renaissance devotional art`, `sacred art gold leaf`, `roman fresco christian`, `gothic architecture dramatic light`
+
+### Sources recommandées
+- **Unsplash / Pexels / Pixabay** — photos libres de droit
+- **Art Institute of Chicago / MET / Rijksmuseum** — peintures religieuses domaine public
+- **Midjourney / DALL-E / Stable Diffusion** — prompt suffix: `dark gold sacred medieval manuscript style --ar 16:9`
+
 ---
 
 ## Notes Dev

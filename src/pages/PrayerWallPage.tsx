@@ -8,7 +8,6 @@ import CrossIcon from "@/components/ui/CrossIcon";
 
 export default function PrayerWallPage() {
   const prayers = useQuery(api.prayers.getPublicPrayerRequests, { limit: 50 });
-  const prayFor = useMutation(api.prayers.prayForRequest);
   const createPrayer = useMutation(api.prayers.createPrayerRequest);
   const { isAuthenticated } = useConvexAuth();
 
@@ -138,18 +137,6 @@ export default function PrayerWallPage() {
                 <p className="font-serif mb-4" style={{ color: "rgba(249,241,224,0.65)", lineHeight: 1.8, fontSize: "0.95rem" }}>
                   {p.content}
                 </p>
-
-                <button
-                  onClick={() => prayFor({ id: p._id })}
-                  className="flex items-center gap-2 font-sans text-xs px-4 py-1.5 rounded-full transition-all hover:scale-105"
-                  style={{
-                    background: "rgba(201,168,76,0.08)",
-                    border: "1px solid rgba(201,168,76,0.2)",
-                    color: "rgba(201,168,76,0.8)",
-                  }}
-                >
-                  🙏 J'ai prié · {p.prayerCount}
-                </button>
               </div>
             ))}
       </div>

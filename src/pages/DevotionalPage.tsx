@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -7,19 +7,46 @@ import { ArrowLeft } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 import { DEFAULT_IMAGES } from "@/constants/images";
 
-const REACTION_ICONS = [
-  { type: "amen" as const, label: "AMEN", icon: "church" },
-  { type: "heart" as const, label: "HEART", icon: "favorite" },
-  { type: "fire" as const, label: "FIRE", icon: "local_fire_department" },
-  { type: "pray" as const, label: "PRAY", icon: "front_hand" },
+const REACTION_CONFIG = [
+  { type: "amen" as const, label: "AMEN" },
+  { type: "heart" as const, label: "HEART" },
+  { type: "fire" as const, label: "FIRE" },
+  { type: "pray" as const, label: "PRAY" },
 ];
+
+const REACTION_SVG: Record<string, (_active: boolean, color: string) => JSX.Element> = {
+  amen: (_active, color) => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+      <line x1="4" y1="22" x2="4" y2="15" />
+    </svg>
+  ),
+  heart: (active, color) => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill={active ? color : "none"} stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  ),
+  fire: (_active, color) => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+    </svg>
+  ),
+  pray: (_active, color) => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 2a4 4 0 0 0-4 4v2h8V6a4 4 0 0 0-4-4z" />
+      <path d="M4 22v-4a8 8 0 0 1 16 0v4" />
+      <path d="M8 14h8" />
+    </svg>
+  ),
+};
 
 export default function DevotionalPage() {
   const { date } = useParams<{ date: string }>();
+  const { isAuthenticated } = useConvexAuth();
   const devotional = useQuery(api.devotionals.getDevotionalByDate, { date: date ?? "" });
   const recentDevotionals = useQuery(api.devotionals.getRecentDevotionals, { limit: 5 });
-  const userReactions = useQuery(
-    api.devotionals.getUserReactions,
+  const reactionCounts = useQuery(
+    api.devotionals.getReactionCounts,
     devotional ? { devotionalId: devotional._id } : "skip"
   );
   const toggleReaction = useMutation(api.devotionals.toggleReaction);
@@ -219,30 +246,39 @@ export default function DevotionalPage() {
           className="flex justify-center items-center gap-6 md:gap-8 py-12"
           style={{ borderTop: "1px solid rgba(201,168,76,0.1)" }}
         >
-          {REACTION_ICONS.map(({ type, label }) => {
-            const hasReacted = userReactions?.some((r) => r.type === type);
+          {REACTION_CONFIG.map(({ type, label }) => {
+            const count = reactionCounts?.counts[type] ?? 0;
+            const hasCount = count > 0;
             return (
               <button
                 key={type}
-                onClick={() => toggleReaction({ devotionalId: devotional._id, type })}
+                onClick={() => {
+                  if (!isAuthenticated) return;
+                  toggleReaction({ devotionalId: devotional._id, type });
+                }}
                 className="flex flex-col items-center gap-2 group transition-all"
+                style={{ cursor: isAuthenticated ? "pointer" : "default" }}
               >
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center transition-all"
                   style={{
-                    border: `1px solid ${hasReacted ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.15)"}`,
-                    background: hasReacted ? "rgba(42,31,14,0.6)" : "transparent",
+                    border: `1px solid ${hasCount ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.15)"}`,
+                    background: hasCount ? "rgba(42,31,14,0.6)" : "transparent",
                   }}
                 >
-                  <ReactionIcon type={type} active={hasReacted ?? false} />
+                  {REACTION_SVG[type](hasCount, hasCount ? "#C9A84C" : "rgba(201,168,76,0.5)")}
                 </div>
                 <span
                   className="font-sans text-[10px] tracking-tighter"
-                  style={{
-                    color: hasReacted ? "rgba(201,168,76,0.9)" : "rgba(201,168,76,0.4)",
-                  }}
+                  style={{ color: hasCount ? "rgba(201,168,76,0.9)" : "rgba(201,168,76,0.4)" }}
                 >
                   {label}
+                </span>
+                <span
+                  className="font-sans text-xs tabular-nums -mt-1"
+                  style={{ color: hasCount ? "#C9A84C" : "rgba(201,168,76,0.3)" }}
+                >
+                  {count}
                 </span>
               </button>
             );
@@ -323,39 +359,4 @@ export default function DevotionalPage() {
       </div>
     </article>
   );
-}
-
-function ReactionIcon({ type, active }: { type: string; active: boolean }) {
-  const color = active ? "#C9A84C" : "rgba(201,168,76,0.5)";
-  switch (type) {
-    case "amen":
-      return (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-          <line x1="4" y1="22" x2="4" y2="15" />
-        </svg>
-      );
-    case "heart":
-      return (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill={active ? "#C9A84C" : "none"} stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-        </svg>
-      );
-    case "fire":
-      return (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
-        </svg>
-      );
-    case "pray":
-      return (
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2a4 4 0 0 0-4 4v2h8V6a4 4 0 0 0-4-4z" />
-          <path d="M4 22v-4a8 8 0 0 1 16 0v4" />
-          <path d="M8 14h8" />
-        </svg>
-      );
-    default:
-      return null;
-  }
 }
