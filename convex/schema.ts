@@ -13,6 +13,7 @@ export default defineSchema({
     role: v.optional(v.union(v.literal("admin"), v.literal("member"))),
     createdAt: v.optional(v.number()),
     lastSeen: v.optional(v.number()),
+    isBanned: v.optional(v.boolean()),
   })
     .index("by_user_id", ["userId"])
     .index("by_email", ["email"]),
@@ -78,11 +79,13 @@ export default defineSchema({
     isPublic: v.boolean(),
     isPrayed: v.boolean(),
     prayerCount: v.number(),
+    isHidden: v.optional(v.boolean()),
     createdAt: v.number(),
   })
     .index("by_devotional", ["devotionalId"])
     .index("by_user", ["userId"])
-    .index("by_public", ["isPublic"]),
+    .index("by_public", ["isPublic"])
+    .index("by_public_hidden", ["isPublic", "isHidden"]),
 
   // Notifications
   notifications: defineTable({
@@ -111,4 +114,14 @@ export default defineSchema({
     expiresAt: v.optional(v.number()),
     isPinned: v.boolean(),
   }).index("by_pinned", ["isPinned"]),
+
+  // Testimonials
+  testimonials: defineTable({
+    userId: v.id("users"),
+    content: v.string(),
+    isApproved: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_approved", ["isApproved"])
+    .index("by_user", ["userId"]),
 });

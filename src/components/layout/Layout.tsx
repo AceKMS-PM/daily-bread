@@ -3,7 +3,7 @@ import { useConvexAuth } from "convex/react";
 import { useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
-import { Menu, X, LogOut, Home, BookOpen, Church, Shield } from "lucide-react";
+import { Menu, X, LogOut, Home, BookOpen, Church, Shield, Heart } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import CrossIcon from "@/components/ui/CrossIcon";
 
@@ -11,6 +11,7 @@ const bottomNavLinks = [
   { to: "/", label: "Accueil", icon: Home },
   { to: "/archives", label: "Archives", icon: BookOpen },
   { to: "/mur-de-priere", label: "Prière", icon: Church },
+  { to: "/temoignages", label: "Témoignages", icon: Heart },
 ];
 
 export default function Layout() {
@@ -25,6 +26,7 @@ export default function Layout() {
     { to: "/", label: "Accueil" },
     { to: "/archives", label: "Archives" },
     { to: "/mur-de-priere", label: "Mur de Prière" },
+    { to: "/temoignages", label: "Témoignages" },
   ];
 
   const handleSignOut = async () => {

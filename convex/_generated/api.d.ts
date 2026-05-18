@@ -16,6 +16,7 @@ import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as prayers from "../prayers.js";
 import type * as seed from "../seed.js";
+import type * as testimonials from "../testimonials.js";
 import type * as users from "../users.js";
 
 import type {
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   prayers: typeof prayers;
   seed: typeof seed;
+  testimonials: typeof testimonials;
   users: typeof users;
 }>;
 

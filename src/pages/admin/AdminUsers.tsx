@@ -2,16 +2,28 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Shield } from "lucide-react";
+import { Shield, Ban, CheckCircle } from "lucide-react";
 
 export default function AdminUsers() {
   const users = useQuery(api.users.getAllUsers);
   const setRole = useMutation(api.users.setUserRole);
+  const banUser = useMutation(api.users.banUser);
+  const unbanUser = useMutation(api.users.unbanUser);
 
   const handleRoleToggle = async (userId: any, currentRole: string) => {
     const newRole = currentRole === "admin" ? "member" : "admin";
     if (!confirm(`Changer le rôle en "${newRole}" ?`)) return;
     await setRole({ targetUserId: userId, role: newRole as any });
+  };
+
+  const handleBan = async (userId: any, userName: string) => {
+    if (!confirm(`Bannir "${userName}" ? Il/elle ne pourra plus publier de prières ni de témoignages.`)) return;
+    await banUser({ targetUserId: userId });
+  };
+
+  const handleUnban = async (userId: any, userName: string) => {
+    if (!confirm(`Réactiver "${userName}" ?`)) return;
+    await unbanUser({ targetUserId: userId });
   };
 
   return (
@@ -30,7 +42,8 @@ export default function AdminUsers() {
             className="flex items-center gap-4 p-5 rounded-xl"
             style={{
               background: "rgba(26,19,8,0.7)",
-              border: "1px solid rgba(201,168,76,0.08)",
+              border: `1px solid ${u.isBanned ? "rgba(139,32,32,0.3)" : "rgba(201,168,76,0.08)"}`,
+              opacity: u.isBanned ? 0.6 : 1,
             }}
           >
             {/* Avatar */}
@@ -47,6 +60,11 @@ export default function AdminUsers() {
                 <p className="font-serif text-parchment-100">{u.name}</p>
                 {u.role === "admin" && (
                   <Shield size={13} style={{ color: "#C9A84C" }} />
+                )}
+                {u.isBanned && (
+                  <span className="font-sans text-[10px] uppercase tracking-widest text-crimson-light px-2 py-0.5 rounded-full" style={{ background: "rgba(139,32,32,0.15)", border: "1px solid rgba(139,32,32,0.3)" }}>
+                    Banni
+                  </span>
                 )}
               </div>
               <p className="font-sans text-xs mt-0.5" style={{ color: "rgba(249,241,224,0.35)" }}>
@@ -67,13 +85,36 @@ export default function AdminUsers() {
             </span>
 
             {/* Toggle role */}
-            <button
-              onClick={() => handleRoleToggle(u._id, u.role ?? "member")}
-              className="font-sans text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
-              style={{ color: "rgba(201,168,76,0.5)" }}
-            >
-              {u.role === "admin" ? "Rétrograder" : "Promouvoir"}
-            </button>
+            {!u.isBanned && (
+              <button
+                onClick={() => handleRoleToggle(u._id, u.role ?? "member")}
+                className="font-sans text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
+                style={{ color: "rgba(201,168,76,0.5)" }}
+              >
+                {u.role === "admin" ? "Rétrograder" : "Promouvoir"}
+              </button>
+            )}
+
+            {/* Ban / Unban */}
+            {u.isBanned ? (
+              <button
+                onClick={() => handleUnban(u._id, u.name ?? "?" )}
+                className="flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
+                style={{ color: "#4ADE80" }}
+              >
+                <CheckCircle size={13} />
+                Réactiver
+              </button>
+            ) : u.role !== "admin" && (
+              <button
+                onClick={() => handleBan(u._id, u.name ?? "?" )}
+                className="flex items-center gap-1.5 font-sans text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
+                style={{ color: "rgba(249,241,224,0.4)" }}
+              >
+                <Ban size={13} />
+                Bannir
+              </button>
+            )}
           </div>
         ))}
       </div>

@@ -7,6 +7,8 @@ import {
   Users,
   LogOut,
   Home,
+  Heart,
+  Church,
 } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -20,6 +22,8 @@ export default function AdminLayout() {
     { to: "/admin", label: "Tableau de bord", icon: LayoutDashboard, end: true },
     { to: "/admin/devotionals", label: "Dévotions", icon: BookOpen },
     { to: "/admin/users", label: "Membres", icon: Users },
+    { to: "/admin/testimonials", label: "Témoignages", icon: Heart },
+    { to: "/admin/prayers", label: "Prières", icon: Church },
   ];
 
   const handleSignOut = async () => {

@@ -32,3 +32,22 @@ export const setUserRole = mutation({
     await ctx.db.patch(targetUserId, { role });
   },
 });
+
+export const banUser = mutation({
+  args: { targetUserId: v.id("users") },
+  handler: async (ctx, { targetUserId }) => {
+    await requireAdmin(ctx);
+    await ctx.db.patch(targetUserId, {
+      isBanned: true,
+      role: "member",
+    });
+  },
+});
+
+export const unbanUser = mutation({
+  args: { targetUserId: v.id("users") },
+  handler: async (ctx, { targetUserId }) => {
+    await requireAdmin(ctx);
+    await ctx.db.patch(targetUserId, { isBanned: false });
+  },
+});

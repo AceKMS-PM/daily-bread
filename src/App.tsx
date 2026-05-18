@@ -7,10 +7,13 @@ import HomePage from "@/pages/HomePage";
 import DevotionalPage from "@/pages/DevotionalPage";
 import ArchivePage from "@/pages/ArchivePage";
 import PrayerWallPage from "@/pages/PrayerWallPage";
+import TestimonialsPage from "@/pages/TestimonialsPage";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminDevotionals from "@/pages/admin/AdminDevotionals";
 import AdminDevotionalEditor from "@/pages/admin/AdminDevotionalEditor";
+import AdminPrayers from "@/pages/admin/AdminPrayers";
 import AdminUsers from "@/pages/admin/AdminUsers";
+import AdminTestimonials from "@/pages/admin/AdminTestimonials";
 import SignInPage from "@/pages/SignInPage";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import NotFoundPage from "@/pages/NotFoundPage";
@@ -36,6 +39,7 @@ export default function App() {
           <Route path="/devotional/:date" element={<DevotionalPage />} />
           <Route path="/archives" element={<ArchivePage />} />
           <Route path="/mur-de-priere" element={<PrayerWallPage />} />
+          <Route path="/temoignages" element={<TestimonialsPage />} />
           <Route
             path="/connexion"
             element={
@@ -55,6 +59,8 @@ export default function App() {
             <Route path="devotionals/new" element={<AdminDevotionalEditor />} />
             <Route path="devotionals/:id/edit" element={<AdminDevotionalEditor />} />
             <Route path="users" element={<AdminUsers />} />
+            <Route path="testimonials" element={<AdminTestimonials />} />
+            <Route path="prayers" element={<AdminPrayers />} />
           </Route>
         </Route>
       </Routes>

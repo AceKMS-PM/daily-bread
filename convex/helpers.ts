@@ -65,3 +65,9 @@ export async function requireAuth(ctx: any) {
   if (!user) throw new Error("Vous devez être connecté.");
   return user;
 }
+
+export async function requireNotBanned(ctx: any) {
+  const user = await requireAuth(ctx);
+  if (user.isBanned) throw new Error("Votre compte a été suspendu.");
+  return user;
+}

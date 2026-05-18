@@ -42,14 +42,22 @@ export const getDevotionalByDate = query({
 });
 
 export const getRecentDevotionals = query({
-  args: { limit: v.optional(v.number()) },
-  handler: async (ctx, { limit = 10 }) => {
+  args: { limit: v.optional(v.number()), tag: v.optional(v.string()) },
+  handler: async (ctx, { limit = 10, tag }) => {
     const safeLimit = Math.min(Math.max(limit ?? 10, 1), 50);
-    const devotionals = await ctx.db
+    let devotionals = await ctx.db
       .query("devotionals")
       .withIndex("by_status", (q) => q.eq("status", "published"))
       .order("desc")
       .take(safeLimit);
+    if (tag) {
+      const all = await ctx.db
+        .query("devotionals")
+        .withIndex("by_status", (q) => q.eq("status", "published"))
+        .order("desc")
+        .collect();
+      devotionals = all.filter((d) => d.tags.includes(tag)).slice(0, safeLimit);
+    }
     return Promise.all(
       devotionals.map(async (d) => {
         const author = await ctx.db.get(d.authorId);
@@ -57,6 +65,24 @@ export const getRecentDevotionals = query({
         return { ...resolved, author };
       })
     );
+  },
+});
+
+export const getAllTags = query({
+  handler: async (ctx) => {
+    const devotionals = await ctx.db
+      .query("devotionals")
+      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .collect();
+    const tagMap = new Map<string, number>();
+    for (const d of devotionals) {
+      for (const tag of d.tags) {
+        tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
+      }
+    }
+    return Array.from(tagMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count);
   },
 });
 

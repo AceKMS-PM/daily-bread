@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { requireAuth } from "./helpers";
+import { requireAdmin, requireAuth, requireNotBanned } from "./helpers";
 
 export const getPublicPrayerRequests = query({
   args: { limit: v.optional(v.number()) },
@@ -8,7 +8,7 @@ export const getPublicPrayerRequests = query({
     const safeLimit = Math.min(Math.max(limit, 1), 50);
     const prayers = await ctx.db
       .query("prayerRequests")
-      .withIndex("by_public", (q) => q.eq("isPublic", true))
+      .withIndex("by_public_hidden", (q) => q.eq("isPublic", true).eq("isHidden", undefined))
       .order("desc")
       .take(safeLimit);
     return Promise.all(
@@ -20,6 +20,29 @@ export const getPublicPrayerRequests = query({
   },
 });
 
+export const getAllPrayers = query({
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const prayers = await ctx.db.query("prayerRequests").order("desc").take(200);
+    return Promise.all(
+      prayers.map(async (p) => {
+        const user = await ctx.db.get(p.userId);
+        return { ...p, user };
+      })
+    );
+  },
+});
+
+export const toggleHidePrayer = mutation({
+  args: { id: v.id("prayerRequests") },
+  handler: async (ctx, { id }) => {
+    await requireAdmin(ctx);
+    const prayer = await ctx.db.get(id);
+    if (!prayer) throw new Error("Demande de prière introuvable.");
+    await ctx.db.patch(id, { isHidden: prayer.isHidden ? undefined : true });
+  },
+});
+
 export const createPrayerRequest = mutation({
   args: {
     content: v.string(),
@@ -27,7 +50,7 @@ export const createPrayerRequest = mutation({
     isPublic: v.boolean(),
   },
   handler: async (ctx, args) => {
-    const user = await requireAuth(ctx);
+    const user = await requireNotBanned(ctx);
 
     if (args.content.trim().length === 0) throw new Error("Le contenu ne peut pas être vide.");
     if (args.content.length > 1000) throw new Error("La prière ne peut pas dépasser 1000 caractères.");
