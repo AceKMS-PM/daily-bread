@@ -6,6 +6,8 @@ import { fr } from "date-fns/locale";
 import { ArrowLeft } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 import { DEFAULT_IMAGES } from "@/constants/images";
+import ShareButtons from "@/components/share/ShareButtons";
+import { useEffect } from "react";
 
 const REACTION_CONFIG = [
   { type: "amen" as const, label: "AMEN" },
@@ -79,6 +81,33 @@ export default function DevotionalPage() {
   const related = (recentDevotionals ?? [])
     .filter((d) => d._id !== devotional._id)
     .slice(0, 2);
+
+  const shareUrl = `${window.location.origin}/devotional/${devotional.scheduledFor}`;
+  const shareTitle = `Daily Bread — ${devotional.title}`;
+  const shareDescription = `${devotional.bibleBook} ${devotional.bibleChapter}:${devotional.bibleVerseStart}${devotional.bibleVerseEnd ? `-${devotional.bibleVerseEnd}` : ""} — ${devotional.bibleText?.slice(0, 120)}`;
+  const shareImage = devotional.coverImage || DEFAULT_IMAGES.DEVOTIONAL_HERO;
+
+  useEffect(() => {
+    const setMeta = (prop: string, name: string, content: string) => {
+      let el = document.querySelector(`meta[${prop}="${name}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(prop, name);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+    setMeta("property", "og:title", shareTitle);
+    setMeta("property", "og:description", shareDescription);
+    setMeta("property", "og:image", shareImage);
+    setMeta("property", "og:url", shareUrl);
+    setMeta("property", "og:type", "article");
+    setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:title", shareTitle);
+    setMeta("name", "twitter:description", shareDescription);
+    setMeta("name", "twitter:image", shareImage);
+    document.title = shareTitle;
+  }, [shareUrl, shareTitle, shareDescription, shareImage]);
 
   return (
     <article>
@@ -283,6 +312,11 @@ export default function DevotionalPage() {
               </button>
             );
           })}
+        </div>
+
+        {/* Share */}
+        <div className="pt-6 pb-2">
+          <ShareButtons url={shareUrl} title={shareTitle} description={shareDescription} />
         </div>
 
         {/* Author */}
