@@ -34,6 +34,7 @@ export default defineSchema({
     reflection: v.optional(v.string()),
     tags: v.array(v.string()),
     coverImage: v.optional(v.string()),
+    coverImageStorageId: v.optional(v.id("_storage")),
     status: v.union(v.literal("draft"), v.literal("published"), v.literal("scheduled")),
     viewCount: v.number(),
     likeCount: v.number(),

@@ -3,95 +3,22 @@ import { api } from "../../convex/_generated/api";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Link } from "react-router-dom";
-import { ChevronRight, BookOpen, Flame, Heart, Hand } from "lucide-react";
+import { useMutation } from "convex/react";
+import { ArrowRight } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
-import DevotionalCard from "@/components/devotional/DevotionalCard";
-import PrayerWallPreview from "@/components/prayer/PrayerWallPreview";
-
-const REACTIONS = [
-  { type: "amen" as const, label: "Amen", emoji: "🙏" },
-  { type: "heart" as const, label: "Amour", emoji: "❤️" },
-  { type: "fire" as const, label: "Feu", emoji: "🔥" },
-  { type: "pray" as const, label: "Prière", emoji: "✝️" },
-];
+import { DEFAULT_IMAGES } from "@/constants/images";
+import { DevotionCardLarge } from "@/components/devotional/DevotionalCard";
 
 export default function HomePage() {
-  const today = new Date().toISOString().split("T")[0];
   const todayDevotional = useQuery(api.devotionals.getTodayDevotional);
-  const recentDevotionals = useQuery(api.devotionals.getRecentDevotionals, { limit: 4 });
+  const recentDevotionals = useQuery(api.devotionals.getRecentDevotionals, { limit: 10 });
   const announcements = useQuery(api.announcements.getAnnouncements);
 
-  const formattedDate = format(new Date(), "EEEE d MMMM yyyy", { locale: fr });
-
   return (
-    <div className="relative">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
-        {/* Background glow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: "radial-gradient(ellipse 70% 50% at 50% 40%, rgba(201,168,76,0.08) 0%, transparent 70%)",
-          }}
-        />
-
-        {/* Date badge */}
-        <div
-          className="fade-up mb-8 px-5 py-2 rounded-full font-sans text-xs tracking-widest uppercase"
-          style={{
-            border: "1px solid rgba(201,168,76,0.3)",
-            color: "rgba(201,168,76,0.8)",
-            background: "rgba(201,168,76,0.05)",
-          }}
-        >
-          {formattedDate}
-        </div>
-
-        {/* Title */}
-        <h1
-          className="fade-up animate-delay-100 font-display text-center mb-4"
-          style={{
-            fontSize: "clamp(3rem, 8vw, 7rem)",
-            lineHeight: "1.05",
-            fontWeight: 300,
-            color: "#f9f1e0",
-          }}
-        >
-          <span className="text-gradient-gold">Pain</span>{" "}
-          <br className="sm:hidden" />
-          Quotidien
-        </h1>
-
-        <div className="fade-up animate-delay-200 flex items-center gap-4 mb-8">
-          <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold-DEFAULT opacity-40" />
-          <CrossIcon size={16} color="rgba(201,168,76,0.5)" />
-          <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold-DEFAULT opacity-40" />
-        </div>
-
-        <p
-          className="fade-up animate-delay-300 font-serif text-center max-w-lg mb-12"
-          style={{ color: "rgba(249,241,224,0.5)", fontSize: "1.1rem", lineHeight: 1.8 }}
-        >
-          Nourris ton âme chaque jour de la Parole vivante de Dieu.
-          <br />
-          Dévotions et versets pour ta marche avec Christ.
-        </p>
-
-        {/* Scroll cue */}
-        <div
-          className="fade-up animate-delay-500 flex flex-col items-center gap-2 cursor-pointer"
-          onClick={() => document.getElementById("devotion-du-jour")?.scrollIntoView({ behavior: "smooth" })}
-        >
-          <span className="font-sans text-xs tracking-widest uppercase" style={{ color: "rgba(201,168,76,0.5)" }}>
-            Dévotion du jour
-          </span>
-          <div className="w-px h-12" style={{ background: "linear-gradient(180deg, rgba(201,168,76,0.5) 0%, transparent 100%)" }} />
-        </div>
-      </section>
-
+    <div>
       {/* Announcement Banner */}
       {announcements && announcements.length > 0 && (
-        <section className="px-6 py-4 max-w-4xl mx-auto">
+        <section className="px-6 py-4 max-w-4xl mx-auto pt-24">
           {announcements
             .filter((a) => a.isPinned)
             .slice(0, 1)
@@ -114,186 +41,236 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Today's Devotional */}
-      <section id="devotion-du-jour" className="px-6 py-16 max-w-4xl mx-auto">
-        <div className="flex items-center gap-4 mb-10">
-          <div className="cross-divider flex-1">
-            <h2 className="font-display text-3xl text-parchment-100 whitespace-nowrap">
-              Dévotion du Jour
-            </h2>
-          </div>
-        </div>
-
+      {/* Verse of the Day Hero */}
+      <section className="py-16 md:py-24 px-6 flex justify-center"
+        style={{ background: "linear-gradient(180deg, rgba(13,10,6,0.5) 0%, rgba(26,19,8,0.3) 100%)" }}
+      >
         {todayDevotional === undefined ? (
-          <TodayDevotionalSkeleton />
+          <div className="w-full max-w-3xl">
+            <div className="rounded-xl p-10 md:p-16 text-center animate-pulse"
+              style={{ background: "rgba(42,31,14,0.5)", border: "1px solid rgba(201,168,76,0.08)" }}
+            >
+              <div className="h-24 w-3/4 mx-auto rounded" style={{ background: "rgba(201,168,76,0.05)" }} />
+              <div className="h-4 w-48 mx-auto mt-8 rounded" style={{ background: "rgba(201,168,76,0.05)" }} />
+            </div>
+          </div>
         ) : todayDevotional === null ? (
-          <EmptyDevotional />
+          <div className="w-full max-w-3xl">
+            <div className="rounded-xl p-10 md:p-16 text-center"
+              style={{ background: "rgba(42,31,14,0.5)", border: "1px solid rgba(201,168,76,0.08)" }}
+            >
+              <CrossIcon size={40} color="rgba(201,168,76,0.2)" className="mx-auto mb-6" />
+              <div className="font-sans text-xs tracking-widest uppercase mb-4" style={{ color: "rgba(201,168,76,0.5)" }}>
+                Verset du Jour
+              </div>
+              <p className="font-serif text-xl italic" style={{ color: "rgba(249,241,224,0.4)", lineHeight: 1.8 }}>
+                « Ta parole est une lampe à mes pieds, et une lumière sur mon sentier. »
+              </p>
+              <div className="font-sans text-xs tracking-widest uppercase mt-6" style={{ color: "rgba(201,168,76,0.5)" }}>
+                Psaume 119:105
+              </div>
+            </div>
+          </div>
         ) : (
-          <TodayDevotionalFull devotional={todayDevotional} />
+          <div className="w-full max-w-3xl fade-up">
+            <div
+              className="rounded-xl p-10 md:p-16 text-center shadow-gold relative overflow-hidden"
+              style={{
+                background: "linear-gradient(180deg, rgba(42,31,14,0.6) 0%, rgba(26,19,8,0.8) 100%)",
+                border: "1px solid rgba(201,168,76,0.12)",
+              }}
+            >
+              <div
+                className="absolute -top-6 -left-6 font-display select-none pointer-events-none"
+                style={{ fontSize: "clamp(4rem, 15vw, 10rem)", color: "rgba(201,168,76,0.04)", lineHeight: 1 }}
+              >
+                "
+              </div>
+              <div className="relative z-10">
+                <div className="font-sans text-xs tracking-widest uppercase mb-6" style={{ color: "rgba(201,168,76,0.6)" }}>
+                  {format(new Date(), "EEEE d MMMM yyyy", { locale: fr })}
+                </div>
+                <p
+                  className="font-serif italic mb-8 leading-relaxed"
+                  style={{ fontSize: "clamp(1.2rem, 2.5vw, 1.6rem)", color: "#f9f1e0", lineHeight: 1.8 }}
+                >
+                  « {todayDevotional.bibleText} »
+                </p>
+                <div className="font-sans text-xs tracking-widest uppercase" style={{ color: "rgba(201,168,76,0.7)" }}>
+                  — {todayDevotional.bibleBook} {todayDevotional.bibleChapter}:{todayDevotional.bibleVerseStart}
+                  {todayDevotional.bibleVerseEnd ? `-${todayDevotional.bibleVerseEnd}` : ""} · {todayDevotional.bibleTranslation}
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </section>
 
-      {/* Recent Devotionals */}
-      {recentDevotionals && recentDevotionals.length > 1 && (
-        <section className="px-6 py-16 max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-10">
-            <h2 className="font-display text-2xl text-parchment-100">Dévotions Récentes</h2>
-            <Link
-              to="/archives"
-              className="flex items-center gap-1 font-sans text-sm"
-              style={{ color: "rgba(201,168,76,0.7)" }}
+      {/* Main Content Grid */}
+      <main className="max-w-6xl mx-auto px-6 md:px-12 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Devotion of the Day */}
+          <section className="lg:col-span-8">
+            <h2
+              className="font-display text-2xl mb-8"
+              style={{ color: "#C9A84C", borderLeft: "2px solid rgba(201,168,76,0.4)", paddingLeft: "1rem" }}
             >
-              Voir tout <ChevronRight size={16} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recentDevotionals.slice(1, 4).map((d) => (
-              <DevotionalCard key={d._id} devotional={d} />
-            ))}
-          </div>
-        </section>
-      )}
+              Dévotion du Jour
+            </h2>
+            {todayDevotional && <DevotionCardLarge devotional={todayDevotional} />}
+          </section>
 
-      {/* Prayer Wall Preview */}
-      <PrayerWallPreview />
+          {/* Community Prayers Sidebar */}
+          <aside className="lg:col-span-4">
+            <PrayerSidebar />
+          </aside>
+        </div>
+
+        {/* Recent Devotionals — Asymmetric Grid */}
+        {recentDevotionals && recentDevotionals.length > 1 && (
+          <section className="mt-24">
+            <div className="flex justify-between items-end mb-12">
+              <div>
+                <h2
+                  className="font-display text-2xl mb-2"
+                  style={{ color: "#C9A84C", borderLeft: "2px solid rgba(201,168,76,0.4)", paddingLeft: "1rem" }}
+                >
+                  Dévotions Récentes
+                </h2>
+                <p className="font-serif text-base" style={{ color: "rgba(249,241,224,0.4)" }}>
+                  Parcours la Parole de Dieu au fil des jours.
+                </p>
+              </div>
+              <Link
+                to="/archives"
+                className="hidden md:flex items-center gap-2 font-sans text-sm uppercase tracking-widest border px-6 py-2 rounded hover:bg-white/5 transition-colors"
+                style={{ color: "#C9A84C", borderColor: "rgba(201,168,76,0.2)" }}
+              >
+                Voir toutes <ArrowRight size={14} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {recentDevotionals.slice(0, 3).map((d, i) => (
+                <div key={d._id} className={i === 1 ? "md:mt-12" : ""}>
+                  <DevotionalCardSmall devotional={d} index={i} />
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-8 md:hidden">
+              <Link
+                to="/archives"
+                className="inline-flex items-center gap-2 font-sans text-sm uppercase tracking-widest border px-6 py-3 rounded-lg"
+                style={{ color: "#C9A84C", borderColor: "rgba(201,168,76,0.2)" }}
+              >
+                Voir toutes les dévotions <ArrowRight size={14} />
+              </Link>
+            </div>
+          </section>
+        )}
+      </main>
     </div>
   );
 }
 
-function TodayDevotionalFull({ devotional }: { devotional: any }) {
-  const userReactions = useQuery(api.devotionals.getUserReactions, { devotionalId: devotional._id });
+function DevotionalCardSmall({ devotional, index }: { devotional: any; index: number }) {
+  const images = [
+    DEFAULT_IMAGES.ARCHIVE_CARD_1,
+    DEFAULT_IMAGES.ARCHIVE_CARD_2,
+    DEFAULT_IMAGES.ARCHIVE_CARD_3,
+  ];
+  const img = devotional.coverImage || images[index % images.length];
+  const tag = devotional.tags?.[0] ?? "Dévotion";
 
   return (
-    <div className="sacred-card p-8 md:p-12 rounded-2xl" style={{ border: "1px solid rgba(201,168,76,0.2)" }}>
-      {/* Bible reference badge */}
-      <div className="flex items-center gap-3 mb-8">
-        <BookOpen size={16} style={{ color: "rgba(201,168,76,0.7)" }} />
-        <span className="font-sans text-sm tracking-wide" style={{ color: "rgba(201,168,76,0.8)" }}>
+    <Link to={`/devotional/${devotional.scheduledFor}`} className="group cursor-pointer block">
+      <div className="aspect-square bg-sacred-deeper rounded-xl overflow-hidden mb-4 relative"
+        style={{ border: "1px solid rgba(201,168,76,0.1)" }}
+      >
+        <img
+          src={img}
+          alt=""
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 opacity-60 group-hover:opacity-100"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-sacred-deeper to-transparent" />
+        <div className="absolute bottom-5 left-5 right-5">
+          <span className="font-sans text-[10px] text-gold-light uppercase tracking-widest">{tag}</span>
+          <h4 className="font-display text-xl text-parchment-100 leading-tight mt-1">{devotional.title}</h4>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 mb-1">
+        <span className="font-sans text-xs tracking-wide" style={{ color: "rgba(201,168,76,0.6)" }}>
           {devotional.bibleBook} {devotional.bibleChapter}:{devotional.bibleVerseStart}
-          {devotional.bibleVerseEnd ? `-${devotional.bibleVerseEnd}` : ""} — {devotional.bibleTranslation}
         </span>
       </div>
+      <p className="font-serif text-sm line-clamp-2" style={{ color: "rgba(249,241,224,0.4)", lineHeight: 1.6 }}>
+        {devotional.content?.slice(0, 100)}...
+      </p>
+    </Link>
+  );
+}
 
-      {/* Title */}
-      <h2 className="font-display mb-6" style={{ fontSize: "clamp(1.8rem, 4vw, 3rem)", color: "#f9f1e0", lineHeight: 1.2 }}>
-        {devotional.title}
-      </h2>
+function PrayerSidebar() {
+  const prayers = useQuery(api.prayers.getPublicPrayerRequests, { limit: 3 });
+  const prayFor = useMutation(api.prayers.prayForRequest);
 
-      {/* Bible verse */}
-      <div className="verse-card mb-8">
-        <p className="font-serif italic" style={{ fontSize: "1.2rem", lineHeight: 2, color: "#f9f1e0" }}>
-          {devotional.bibleText}
-        </p>
-        <p className="font-sans text-xs mt-4 tracking-widest uppercase" style={{ color: "rgba(201,168,76,0.6)" }}>
-          — {devotional.bibleBook} {devotional.bibleChapter}:{devotional.bibleVerseStart}
-        </p>
-      </div>
+  if (!prayers || prayers.length === 0) return null;
 
-      {/* Content */}
-      <div
-        className="font-serif mb-8 prose-devotional"
-        style={{ fontSize: "1.05rem", lineHeight: 1.9, color: "rgba(249,241,224,0.75)", whiteSpace: "pre-wrap" }}
+  return (
+    <div>
+      <h2
+        className="font-display text-2xl mb-8"
+        style={{ color: "#C9A84C", borderLeft: "2px solid rgba(201,168,76,0.4)", paddingLeft: "1rem" }}
       >
-        {devotional.content}
-      </div>
-
-      {/* Prayer */}
-      {devotional.prayer && (
-        <div
-          className="p-6 rounded-xl mb-8"
-          style={{ background: "rgba(201,168,76,0.05)", border: "1px solid rgba(201,168,76,0.15)" }}
-        >
-          <p className="font-sans text-xs uppercase tracking-widest mb-3" style={{ color: "rgba(201,168,76,0.7)" }}>
-            ✝ Prière
-          </p>
-          <p className="font-serif italic" style={{ color: "rgba(249,241,224,0.7)", lineHeight: 1.9 }}>
-            {devotional.prayer}
-          </p>
-        </div>
-      )}
-
-      {/* Author */}
-      {devotional.author && (
-        <div className="flex items-center gap-3 mb-8 pt-6 border-t" style={{ borderColor: "rgba(201,168,76,0.1)" }}>
+        Prières Communautaires
+      </h2>
+      <div className="space-y-4">
+        {prayers.map((p: any) => (
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-sacred-dark"
-            style={{ background: "linear-gradient(135deg, #C9A84C, #E8C97A)" }}
+            key={p._id}
+            className="p-6 rounded-lg transition-colors cursor-pointer group"
+            style={{
+              background: "rgba(26,19,8,0.6)",
+              border: "1px solid rgba(201,168,76,0.08)",
+            }}
           >
-            {devotional.author.name?.[0]?.toUpperCase()}
-          </div>
-          <div>
-            <p className="font-sans text-sm text-parchment-100">{devotional.author.name}</p>
-            <p className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.35)" }}>
-              {format(new Date(devotional.scheduledFor), "d MMMM yyyy", { locale: fr })}
+            <div className="flex justify-between items-start mb-2">
+              <span className="font-sans text-[12px]" style={{ color: "#C9A84C" }}>
+                PRIÈRE
+              </span>
+              <span className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.3)" }}>
+                {format(new Date(p.createdAt), "d MMM", { locale: fr })}
+              </span>
+            </div>
+            <p className="font-serif text-sm mb-4 line-clamp-3" style={{ color: "rgba(249,241,224,0.65)", lineHeight: 1.7 }}>
+              {p.content}
             </p>
+            <div className="flex items-center justify-between">
+              <span className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.35)" }}>
+                {p.user?.name ?? "Anonyme"}
+              </span>
+              <button
+                onClick={() => prayFor({ id: p._id })}
+                className="flex items-center gap-1 transition-all hover:scale-105 active:scale-95"
+                style={{ color: "#C9A84C" }}
+              >
+                <span className="font-sans text-xs">AMEN</span>
+                {p.prayerCount > 0 && (
+                  <span className="font-sans text-xs">({p.prayerCount})</span>
+                )}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-
-      {/* Reactions */}
-      <div className="flex flex-wrap gap-3">
-        {REACTIONS.map(({ type, label, emoji }) => {
-          const hasReacted = userReactions?.some((r) => r.type === type);
-          return (
-            <ReactionButton
-              key={type}
-              devotionalId={devotional._id}
-              type={type}
-              label={label}
-              emoji={emoji}
-              active={hasReacted ?? false}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function ReactionButton({ devotionalId, type, label, emoji, active }: any) {
-  const { useMutation } = require("convex/react");
-  const toggle = useMutation(api.devotionals.toggleReaction);
-
-  return (
-    <button
-      onClick={() => toggle({ devotionalId, type })}
-      className="flex items-center gap-2 px-4 py-2 rounded-full font-sans text-sm transition-all duration-200"
-      style={{
-        background: active ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.03)",
-        border: `1px solid ${active ? "rgba(201,168,76,0.5)" : "rgba(255,255,255,0.08)"}`,
-        color: active ? "#C9A84C" : "rgba(249,241,224,0.5)",
-        transform: active ? "scale(1.05)" : "scale(1)",
-      }}
-    >
-      <span>{emoji}</span>
-      <span>{label}</span>
-    </button>
-  );
-}
-
-function TodayDevotionalSkeleton() {
-  return (
-    <div className="sacred-card p-10 rounded-2xl animate-pulse">
-      <div className="h-4 w-48 rounded mb-8" style={{ background: "rgba(201,168,76,0.1)" }} />
-      <div className="h-12 w-3/4 rounded mb-4" style={{ background: "rgba(201,168,76,0.1)" }} />
-      <div className="h-32 w-full rounded mb-8" style={{ background: "rgba(201,168,76,0.05)" }} />
-      <div className="space-y-3">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-4 rounded" style={{ background: "rgba(201,168,76,0.05)", width: `${100 - i * 10}%` }} />
         ))}
       </div>
-    </div>
-  );
-}
-
-function EmptyDevotional() {
-  return (
-    <div className="text-center py-20">
-      <CrossIcon size={40} color="rgba(201,168,76,0.2)" className="mx-auto mb-6" />
-      <h3 className="font-display text-2xl text-parchment-200/40 mb-3">Aucune dévotion aujourd'hui</h3>
-      <p className="font-serif" style={{ color: "rgba(249,241,224,0.25)" }}>
-        Revenez bientôt — la Parole sera là.
-      </p>
+      <Link
+        to="/mur-de-priere"
+        className="block text-center py-4 font-sans text-xs tracking-widest uppercase hover:underline"
+        style={{ color: "rgba(201,168,76,0.7)" }}
+      >
+        Voir le mur de prière →
+      </Link>
     </div>
   );
 }

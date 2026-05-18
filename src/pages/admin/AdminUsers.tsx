@@ -2,7 +2,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Shield, User } from "lucide-react";
+import { Shield } from "lucide-react";
 
 export default function AdminUsers() {
   const users = useQuery(api.users.getAllUsers);
@@ -50,7 +50,7 @@ export default function AdminUsers() {
                 )}
               </div>
               <p className="font-sans text-xs mt-0.5" style={{ color: "rgba(249,241,224,0.35)" }}>
-                {u.email} · Inscrit le {format(new Date(u.createdAt), "d MMM yyyy", { locale: fr })}
+                {u.email} · Inscrit le {format(new Date(u.createdAt ?? 0), "d MMM yyyy", { locale: fr })}
               </p>
             </div>
 
@@ -68,7 +68,7 @@ export default function AdminUsers() {
 
             {/* Toggle role */}
             <button
-              onClick={() => handleRoleToggle(u._id, u.role)}
+              onClick={() => handleRoleToggle(u._id, u.role ?? "member")}
               className="font-sans text-xs px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5"
               style={{ color: "rgba(201,168,76,0.5)" }}
             >

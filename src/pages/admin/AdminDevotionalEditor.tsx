@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
-import { Save, ArrowLeft, Eye } from "lucide-react";
+import type { Id } from "../../../convex/_generated/dataModel";
+import { Save, ArrowLeft, Eye, Upload, Trash2, Loader2 } from "lucide-react";
 
 const TRANSLATIONS = ["LSG", "BDS", "NEG", "KJV", "NIV", "ESV", "NBS"];
 const BIBLE_BOOKS = [
@@ -31,17 +32,19 @@ const COMMON_TAGS = [
 type Status = "draft" | "published" | "scheduled";
 
 export default function AdminDevotionalEditor() {
-  const { id } = useParams<{ id?: string }>();
+  const { id: routeId } = useParams<{ id?: string }>();
+  const id = routeId as Id<"devotionals"> | undefined;
   const navigate = useNavigate();
   const isEditing = Boolean(id);
 
   const existingDevotional = useQuery(
     api.devotionals.getDevotionalById,
-    id ? { id: id as any } : "skip"
+    id ? { id } : "skip"
   );
 
   const createDevotional = useMutation(api.devotionals.createDevotional);
   const updateDevotional = useMutation(api.devotionals.updateDevotional);
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -57,6 +60,8 @@ export default function AdminDevotionalEditor() {
     bibleTranslation: "LSG",
     prayer: "",
     reflection: "",
+    coverImage: "",
+    coverImageStorageId: null as Id<"_storage"> | null,
     tags: [] as string[],
     status: "draft" as Status,
   });
@@ -64,6 +69,9 @@ export default function AdminDevotionalEditor() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<"content" | "verse" | "settings">("verse");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
 
   // Load existing data
   useEffect(() => {
@@ -80,6 +88,8 @@ export default function AdminDevotionalEditor() {
         bibleTranslation: existingDevotional.bibleTranslation,
         prayer: existingDevotional.prayer ?? "",
         reflection: existingDevotional.reflection ?? "",
+        coverImage: existingDevotional.coverImage ?? "",
+        coverImageStorageId: existingDevotional.coverImageStorageId ?? null,
         tags: existingDevotional.tags,
         status: existingDevotional.status,
       });
@@ -95,12 +105,50 @@ export default function AdminDevotionalEditor() {
     }));
   };
 
+  const handleUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const uploadUrl = await generateUploadUrl();
+      const response = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      if (!response.ok) throw new Error("Upload échoué");
+      const { storageId } = await response.json() as { storageId: Id<"_storage"> };
+      set("coverImageStorageId", storageId);
+      set("coverImage", "");
+      setLocalPreview(null);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setLocalPreview(URL.createObjectURL(file));
+    handleUpload(file);
+  };
+
+  const handleRemoveUploaded = () => {
+    set("coverImageStorageId", null);
+    set("coverImage", "");
+    setLocalPreview(null);
+  };
+
   const handleSave = async (statusOverride?: Status) => {
     setSaving(true);
-    const payload = { ...form, status: statusOverride ?? form.status };
+    const payload = {
+      ...form,
+      status: statusOverride ?? form.status,
+      coverImageStorageId: form.coverImageStorageId as Id<"_storage"> | null,
+    };
     try {
-      if (isEditing && id) {
-        await updateDevotional({ id: id as any, ...payload });
+      if (isEditing && routeId) {
+        await updateDevotional({ id: routeId as Id<"devotionals">, ...payload });
       } else {
         await createDevotional(payload);
       }
@@ -113,6 +161,11 @@ export default function AdminDevotionalEditor() {
       setSaving(false);
     }
   };
+
+  const showImage =
+    form.coverImage || form.coverImageStorageId || localPreview;
+
+  const previewUrl = localPreview || form.coverImage || "";
 
   const tabStyle = (tab: string) => ({
     padding: "0.5rem 1rem",
@@ -363,6 +416,74 @@ export default function AdminDevotionalEditor() {
                 </button>
               ))}
             </div>
+          </div>
+
+          <div>
+            <label className="field-label">Image de couverture</label>
+
+            {/* Upload area */}
+            <div className="flex items-start gap-4 flex-wrap">
+              <div className="flex-1 min-w-[200px]">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={handleFileSelect}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="field-input flex items-center gap-2 w-full cursor-pointer hover:border-gold-dark/40 transition-colors"
+                  style={{ borderStyle: "dashed" }}
+                >
+                  {uploading ? (
+                    <><Loader2 size={16} className="animate-spin" /> Upload en cours...</>
+                  ) : (
+                    <><Upload size={16} /> Choisir une image</>
+                  )}
+                </button>
+
+                <p className="font-sans text-[10px] mt-1" style={{ color: "rgba(249,241,224,0.3)" }}>
+                  JPEG, PNG ou WebP
+                </p>
+              </div>
+
+              {/* External URL input */}
+              <div className="flex-1 min-w-[200px]">
+                <input
+                  type="url"
+                  value={form.coverImage}
+                  onChange={(e) => {
+                    set("coverImage", e.target.value);
+                    if (e.target.value) set("coverImageStorageId", null);
+                  }}
+                  placeholder="Ou coller un lien externe..."
+                  className="field-input font-sans text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Preview */}
+            {showImage && (
+              <div className="mt-3 rounded-lg overflow-hidden border relative" style={{ borderColor: "rgba(201,168,76,0.15)", maxWidth: 400 }}>
+                <img
+                  src={previewUrl}
+                  alt="cover preview"
+                  className="w-full h-32 object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveUploaded}
+                  className="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-red-400 hover:bg-black/80 transition-colors"
+                  title="Supprimer l'image"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            )}
           </div>
 
           <div>

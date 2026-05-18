@@ -1,5 +1,4 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { useConvexAuth } from "convex/react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import {
@@ -8,7 +7,6 @@ import {
   Users,
   LogOut,
   Home,
-  ChevronRight,
 } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 import { useAuthActions } from "@convex-dev/auth/react";

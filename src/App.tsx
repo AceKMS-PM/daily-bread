@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { Authenticated, AuthLoading, useConvexAuth } from "convex/react";
+import { AuthLoading, useConvexAuth } from "convex/react";
 import Layout from "@/components/layout/Layout";
 import AdminLayout from "@/components/layout/AdminLayout";
 import AdminGuard from "@/components/layout/AdminGuard";

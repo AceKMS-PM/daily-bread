@@ -2,6 +2,16 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { getOrCreateUserRecord, requireAdmin, requireAuth } from "./helpers";
 
+async function resolveCoverImage(ctx: any, devotional: any) {
+  if (devotional.coverImageStorageId) {
+    const url = await ctx.storage.getUrl(devotional.coverImageStorageId);
+    if (url) {
+      return { ...devotional, coverImage: url };
+    }
+  }
+  return devotional;
+}
+
 export const getTodayDevotional = query({
   handler: async (ctx) => {
     const today = new Date().toISOString().split("T")[0];
@@ -11,7 +21,8 @@ export const getTodayDevotional = query({
       .first();
     if (!devotional) return null;
     const author = await ctx.db.get(devotional.authorId);
-    return { ...devotional, author };
+    const resolved = await resolveCoverImage(ctx, devotional);
+    return { ...resolved, author };
   },
 });
 
@@ -25,7 +36,8 @@ export const getDevotionalByDate = query({
       .first();
     if (!devotional) return null;
     const author = await ctx.db.get(devotional.authorId);
-    return { ...devotional, author };
+    const resolved = await resolveCoverImage(ctx, devotional);
+    return { ...resolved, author };
   },
 });
 
@@ -41,7 +53,8 @@ export const getRecentDevotionals = query({
     return Promise.all(
       devotionals.map(async (d) => {
         const author = await ctx.db.get(d.authorId);
-        return { ...d, author };
+        const resolved = await resolveCoverImage(ctx, d);
+        return { ...resolved, author };
       })
     );
   },
@@ -54,7 +67,8 @@ export const getAllDevotionals = query({
     return Promise.all(
       devotionals.map(async (d) => {
         const author = await ctx.db.get(d.authorId);
-        return { ...d, author };
+        const resolved = await resolveCoverImage(ctx, d);
+        return { ...resolved, author };
       })
     );
   },
@@ -70,7 +84,8 @@ export const getDevotionalById = query({
       if (!user || user.role !== "admin") return null;
     }
     const author = await ctx.db.get(devotional.authorId);
-    return { ...devotional, author };
+    const resolved = await resolveCoverImage(ctx, devotional);
+    return { ...resolved, author };
   },
 });
 
@@ -101,6 +116,7 @@ export const createDevotional = mutation({
     reflection: v.optional(v.string()),
     tags: v.array(v.string()),
     coverImage: v.optional(v.string()),
+    coverImageStorageId: v.optional(v.union(v.id("_storage"), v.null())),
     status: v.union(v.literal("draft"), v.literal("published"), v.literal("scheduled")),
   },
   handler: async (ctx, args) => {
@@ -119,13 +135,17 @@ export const createDevotional = mutation({
       if (existing) throw new Error(`Une dévotion est déjà publiée pour le ${args.scheduledFor}.`);
     }
 
-    return ctx.db.insert("devotionals", {
+    const insertData: Record<string, any> = {
       ...args,
       authorId: user._id,
       publishedAt: args.status === "published" ? Date.now() : undefined,
       viewCount: 0,
       likeCount: 0,
-    });
+    };
+    if (insertData.coverImageStorageId === null) {
+      delete insertData.coverImageStorageId;
+    }
+    return ctx.db.insert("devotionals", insertData as any);
   },
 });
 
@@ -145,6 +165,7 @@ export const updateDevotional = mutation({
     reflection: v.optional(v.string()),
     tags: v.optional(v.array(v.string())),
     coverImage: v.optional(v.string()),
+    coverImageStorageId: v.optional(v.union(v.id("_storage"), v.null())),
     status: v.optional(v.union(v.literal("draft"), v.literal("published"), v.literal("scheduled"))),
   },
   handler: async (ctx, { id, ...updates }) => {
@@ -158,8 +179,15 @@ export const updateDevotional = mutation({
       if (existing && existing._id !== id) throw new Error(`Une dévotion est déjà publiée pour le ${updates.scheduledFor}.`);
     }
 
-    const cleanUpdates = Object.fromEntries(Object.entries(updates).filter(([, v]) => v !== undefined));
-    if (updates.status === "published") (cleanUpdates as any).publishedAt = Date.now();
+    const cleanUpdates: Record<string, any> = {};
+    for (const [key, value] of Object.entries(updates)) {
+      if (key === "coverImageStorageId") {
+        cleanUpdates[key] = value === null ? undefined : value;
+      } else if (value !== undefined) {
+        cleanUpdates[key] = value;
+      }
+    }
+    if (updates.status === "published") cleanUpdates.publishedAt = Date.now();
     await ctx.db.patch(id, cleanUpdates);
   },
 });

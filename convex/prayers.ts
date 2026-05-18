@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getOrCreateUserRecord, requireAuth } from "./helpers";
+import { requireAuth } from "./helpers";
 
 export const getPublicPrayerRequests = query({
   args: { limit: v.optional(v.number()) },

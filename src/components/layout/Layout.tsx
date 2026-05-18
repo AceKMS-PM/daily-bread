@@ -1,17 +1,24 @@
-import { Outlet, NavLink, useNavigate } from "react-router-dom";
+import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useConvexAuth } from "convex/react";
 import { useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, Home, BookOpen, Church, Shield } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import CrossIcon from "@/components/ui/CrossIcon";
+
+const bottomNavLinks = [
+  { to: "/", label: "Accueil", icon: Home },
+  { to: "/archives", label: "Archives", icon: BookOpen },
+  { to: "/mur-de-priere", label: "Prière", icon: Church },
+];
 
 export default function Layout() {
   const { isAuthenticated } = useConvexAuth();
   const { signOut } = useAuthActions();
   const currentUser = useQuery(api.users.getCurrentUser);
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const navLinks = [
@@ -207,23 +214,84 @@ export default function Layout() {
       )}
 
       {/* Page content */}
-      <main className="relative pt-20" style={{ zIndex: 1 }}>
+      <main className="relative pt-20 pb-20 md:pb-0" style={{ zIndex: 1 }}>
         <Outlet />
       </main>
 
       {/* Footer */}
-      <footer className="relative py-16 px-6 mt-24 text-center" style={{ borderTop: "1px solid rgba(201,168,76,0.1)", zIndex: 1 }}>
-        <div className="flex flex-col items-center gap-4">
+      <footer className="relative py-16 px-6 pb-24 md:pb-16 text-center"
+        style={{ borderTop: "1px solid rgba(201,168,76,0.1)", zIndex: 1, background: "rgba(26,19,8,0.5)" }}
+      >
+        <div className="flex flex-col items-center gap-8 max-w-6xl mx-auto">
           <CrossIcon size={24} color="rgba(201,168,76,0.4)" />
           <p className="font-display text-2xl text-gradient-gold">Daily Bread</p>
-          <p className="font-serif text-sm" style={{ color: "rgba(249,241,224,0.35)" }}>
-            « Donne-nous aujourd'hui notre pain quotidien » — Matthieu 6:11
-          </p>
-          <p className="font-sans text-xs tracking-widest mt-4" style={{ color: "rgba(249,241,224,0.2)" }}>
-            © {new Date().getFullYear()} • Pour la gloire de Dieu
-          </p>
+          <nav className="flex flex-wrap justify-center gap-x-12 gap-y-4">
+            <a href="/archives" className="font-sans text-sm transition-colors hover:text-gold-DEFAULT"
+              style={{ color: "rgba(249,241,224,0.4)" }}>
+              Archives
+            </a>
+            <a href="/mur-de-priere" className="font-sans text-sm transition-colors hover:text-gold-DEFAULT"
+              style={{ color: "rgba(249,241,224,0.4)" }}>
+              Mur de Prière
+            </a>
+            <a href="/connexion" className="font-sans text-sm transition-colors hover:text-gold-DEFAULT"
+              style={{ color: "rgba(249,241,224,0.4)" }}>
+              Connexion
+            </a>
+          </nav>
+          <div className="text-center">
+            <p className="font-serif text-sm" style={{ color: "rgba(249,241,224,0.35)" }}>
+              « Donne-nous aujourd'hui notre pain quotidien » — Matthieu 6:11
+            </p>
+            <p className="font-sans text-xs tracking-widest mt-4" style={{ color: "rgba(249,241,224,0.2)" }}>
+              © {new Date().getFullYear()} • Pour la gloire de Dieu
+            </p>
+          </div>
         </div>
       </footer>
+
+      {/* Mobile Bottom Nav */}
+      <nav className="md:hidden fixed bottom-0 w-full z-50 flex justify-around items-center px-2 py-1"
+        style={{
+          background: "rgba(13,10,6,0.98)",
+          borderTop: "1px solid rgba(201,168,76,0.12)",
+          backdropFilter: "blur(12px)",
+        }}
+      >
+        {bottomNavLinks.map((link) => {
+          const isActive = link.to === "/" ? location.pathname === "/" : location.pathname.startsWith(link.to);
+          const Icon = link.icon;
+          return (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.to === "/"}
+              className="flex flex-col items-center justify-center py-2 px-4 rounded-full transition-all"
+              style={{
+                background: isActive ? "rgba(201,168,76,0.12)" : "transparent",
+                color: isActive ? "#C9A84C" : "rgba(249,241,224,0.35)",
+              }}
+            >
+              <Icon size={20} />
+              <span className="font-sans text-[10px] mt-0.5">{link.label}</span>
+            </NavLink>
+          );
+        })}
+        {isAuthenticated && (
+          <NavLink
+            to="/admin"
+            end
+            className="flex flex-col items-center justify-center py-2 px-4 rounded-full transition-all"
+            style={{
+              background: location.pathname.startsWith("/admin") ? "rgba(201,168,76,0.12)" : "transparent",
+              color: location.pathname.startsWith("/admin") ? "#C9A84C" : "rgba(249,241,224,0.35)",
+            }}
+          >
+            <Shield size={20} />
+            <span className="font-sans text-[10px] mt-0.5">Admin</span>
+          </NavLink>
+        )}
+      </nav>
     </div>
   );
 }

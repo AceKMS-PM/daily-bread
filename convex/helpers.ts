@@ -23,7 +23,7 @@ export async function getOrCreateUserRecord(ctx: any) {
   }
 
   if (user) {
-    const updates: any = { lastSeen: Date.now() };
+    const updates: any = {};
     if (!user.userId) updates.userId = authUserId;
     if (!user.name) updates.name = name;
     if (!user.createdAt) updates.createdAt = Date.now();
@@ -31,8 +31,11 @@ export async function getOrCreateUserRecord(ctx: any) {
       const withRole = (await ctx.db.query("users").collect()).filter((u: any) => u.role);
       updates.role = withRole.length === 0 ? "admin" : "member";
     }
-    await ctx.db.patch(user._id, updates);
-    return { ...user, ...updates };
+    if (typeof ctx.db.patch === "function") {
+      updates.lastSeen = Date.now();
+      await ctx.db.patch(user._id, updates);
+    }
+    return { ...user, ...updates, lastSeen: user.lastSeen ?? Date.now() };
   }
 
   const allUsers = await ctx.db.query("users").collect();

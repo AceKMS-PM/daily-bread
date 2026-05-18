@@ -11,9 +11,11 @@
 import type * as announcements from "../announcements.js";
 import type * as auth from "../auth.js";
 import type * as devotionals from "../devotionals.js";
+import type * as files from "../files.js";
 import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as prayers from "../prayers.js";
+import type * as seed from "../seed.js";
 import type * as users from "../users.js";
 
 import type {
@@ -26,9 +28,11 @@ declare const fullApi: ApiFromModules<{
   announcements: typeof announcements;
   auth: typeof auth;
   devotionals: typeof devotionals;
+  files: typeof files;
   helpers: typeof helpers;
   http: typeof http;
   prayers: typeof prayers;
+  seed: typeof seed;
   users: typeof users;
 }>;
 

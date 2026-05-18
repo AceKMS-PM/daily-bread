@@ -1,15 +1,12 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { Link } from "react-router-dom";
-import { useConvexAuth } from "convex/react";
-import { HandIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
 export default function PrayerWallPreview() {
   const prayers = useQuery(api.prayers.getPublicPrayerRequests, { limit: 3 });
   const prayFor = useMutation(api.prayers.prayForRequest);
-  const { isAuthenticated } = useConvexAuth();
 
   if (!prayers || prayers.length === 0) return null;
 

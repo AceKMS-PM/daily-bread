@@ -60,6 +60,10 @@
 
 ## Design System
 
+### Brand Philosophy
+> **Sacred, Devotional, Timeless** — évoque la révérence silencieuse, la profondeur spirituelle, et le poids de la tradition dans un espace numérique moderne.
+> Style: **Minimaliste / Sacré-Tactile** — contrastes sombres élevés, grands espaces blancs, accents dorés imitant la feuille d'or des manuscrits classiques. Textures subtiles de parchemin et de pierre.
+
 ### Color Palette (tailwind.config.js + globals.css)
 
 **Gold (accent principal)**
@@ -133,11 +137,32 @@
 - `.nav-link` — Lien navigation uppercase + gold underline hover
 - `.field-label` / `.field-input` — Styles formulaires admin dark
 
+### Layout & Spacing
+- **Fixed-Width Centered** pour les dévotions (max-width: 720px — comme un livre)
+- **12-column fluid grid** pour dashboard et archives
+- **Gutter**: 24px entre composants
+- **Margins**: 16px mobile / 64px desktop
+- **Vertical Rhythm**: 8px incréments standard, 32-48px entre grandes sections
+- **Max-width site**: 1280px
+
+### Elevation & Depth
+- **Base**: `sacred-dark` (#0D0A06) — plancher du UI
+- **Surface**: `sacred-deeper` (#1A1308) — cartes et conteneurs
+- **Overlay**: `sacred-warm` (#2A1F0E) — états actifs, modales, dropdowns
+- **Glow**: `shadow-gold` (diffused 30px gold bloom) pour cartes "featured"
+- **Noise Texture**: overlay SVG global à 0.03 opacité sur toutes les surfaces
+
+### Shapes
+- **Standard**: 4px (0.25rem) — boutons, inputs
+- **Sacred Cards**: 8px (0.5rem) — cartes distinctes
+- **Dividers**: `cross-divider` — ligne gold 1px avec croix/diamant centré
+
 ### Composants UI (src/components)
 - **layout/** — `Layout.tsx` (public), `AdminLayout.tsx`, `AdminGuard.tsx`
 - **devotional/** — Cartes et listes de dévotions
 - **prayer/** — Composants mur de prière
 - **ui/** — Composants réutilisables (LoadingScreen, etc.)
+- **Stitch design references**: les screenshots dans `public/stitch-*.png` montrent le rendu visuel cible
 
 ---
 
@@ -163,22 +188,30 @@
 
 ---
 
-## Idées & Roadmap
+## Roadmap & Feature Status
 
-- [ ] Support i18n (FR/EN)
-- [ ] Notifications push
-- [ ] Mode sombre toggle (déjà dark-first, mais variant light)
-- [ ] Lecteur audio des dévotions
-- [ ] Planification d'articles (scheduled posts)
-- [ ] Statistiques avancées dashboard admin
-- [ ] Export PDF des dévotions
+### ✅ Done
+- [x] Planification d'articles (scheduled posts) — date picker + status {draft|scheduled|published}
+- [x] Mur de prières communautaire — schema, backend (rate-limited), page dédiée, preview accueil
+- [x] Sélection traduction biblique (admin) — 7 versions: LSG, BDS, NEG, KJV, NIV, ESV, NBS
+
+### ⚠️ Partial
+- [~] Notifications push — schema `notifications` existe, mais pas de queries/mutations ni UI
+- [~] Dashboard admin stats — KPIs basiques (comptes), pas de charts ni tendances
+- [~] Selecteur traduction publique — admin choisit, mais lecteur ne peut pas switch
+- [~] Community Prayers sidebar — section existe en full-width, pas en sidebar latérale
+
+### 🔜 À faire
+- [ ] Tags filtering sur archives
+- [ ] Barre de navigation mobile (bottom nav)
 - [ ] Partage réseaux sociaux
 - [ ] Commentaires sur les dévotions
-- [ ] Tags filtering sur archives
+- [ ] Support i18n (FR/EN)
+- [ ] Mode clair/sombre toggle
+- [ ] Lecteur audio des dévotions
+- [ ] Export PDF des dévotions
 - [ ] Newsletter email (via Convex cron)
-- [ ] Multi-language Bible translations selector
-- [ ] Intéraction avec témoignages
-- [ ] Mur de prières
+- [ ] Intéractions avec témoignages
 
 ---
 
