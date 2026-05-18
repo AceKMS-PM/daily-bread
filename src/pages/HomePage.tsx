@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -109,7 +109,7 @@ export default function HomePage() {
       <main className="max-w-6xl mx-auto px-6 md:px-12 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Devotion of the Day */}
-          <section className="lg:col-span-12">
+          <section className="lg:col-span-8">
             <h2
               className="font-display text-2xl mb-8"
               style={{ color: "#C9A84C", borderLeft: "2px solid rgba(201,168,76,0.4)", paddingLeft: "1rem" }}
@@ -118,6 +118,11 @@ export default function HomePage() {
             </h2>
             {todayDevotional && <DevotionCardLarge devotional={todayDevotional} />}
           </section>
+
+          {/* Prayers Sidebar */}
+          <aside className="lg:col-span-4">
+            <PrayerSidebar />
+          </aside>
         </div>
 
         {/* Recent Devotionals — Asymmetric Grid */}
@@ -164,6 +169,70 @@ export default function HomePage() {
           </section>
         )}
       </main>
+    </div>
+  );
+}
+
+function PrayerSidebar() {
+  const prayers = useQuery(api.prayers.getPublicPrayerRequests, { limit: 3 });
+  const prayFor = useMutation(api.prayers.prayForRequest);
+
+  if (!prayers || prayers.length === 0) return null;
+
+  return (
+    <div>
+      <h2
+        className="font-display text-2xl mb-8"
+        style={{ color: "#C9A84C", borderLeft: "2px solid rgba(201,168,76,0.4)", paddingLeft: "1rem" }}
+      >
+        Let's Pray
+      </h2>
+      <div className="space-y-4">
+        {prayers.map((p: any) => (
+          <div
+            key={p._id}
+            className="p-6 rounded-lg transition-colors cursor-pointer group"
+            style={{
+              background: "rgba(26,19,8,0.6)",
+              border: "1px solid rgba(201,168,76,0.08)",
+            }}
+          >
+            <div className="flex justify-between items-start mb-2">
+              <span className="font-sans text-[12px]" style={{ color: "#C9A84C" }}>
+                PRAY
+              </span>
+              <span className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.3)" }}>
+                {format(new Date(p.createdAt), "d MMM", { locale: fr })}
+              </span>
+            </div>
+            <p className="font-serif text-sm mb-4 line-clamp-3" style={{ color: "rgba(249,241,224,0.65)", lineHeight: 1.7 }}>
+              {p.content}
+            </p>
+            <div className="flex items-center justify-between">
+              <span className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.35)" }}>
+                {p.user?.name ?? "Anonyme"}
+              </span>
+              <button
+                onClick={() => prayFor({ id: p._id })}
+                className="flex items-center gap-1 transition-all hover:scale-105 active:scale-95"
+                style={{ color: "#C9A84C" }}
+              >
+                <span className="font-sans text-xs">AMEN</span>
+                {p.prayerCount > 0 && (
+                  <span className="font-sans text-xs">({p.prayerCount})</span>
+                )}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <Link
+        to="/mur-de-priere"
+        className="block text-center py-4 font-sans text-xs tracking-widest uppercase hover:underline"
+        style={{ color: "rgba(201,168,76,0.7)" }}
+      >
+        Voir toutes les prières →
+      </Link>
     </div>
   );
 }
