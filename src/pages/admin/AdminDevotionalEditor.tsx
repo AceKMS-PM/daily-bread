@@ -144,7 +144,9 @@ export default function AdminDevotionalEditor() {
     const payload = {
       ...form,
       status: statusOverride ?? form.status,
-      coverImageStorageId: form.coverImageStorageId as Id<"_storage"> | null,
+      ...(form.coverImageStorageId !== null && {
+        coverImageStorageId: form.coverImageStorageId as Id<"_storage">,
+      }),
     };
     try {
       if (isEditing && routeId) {
