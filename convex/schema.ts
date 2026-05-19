@@ -126,4 +126,15 @@ export default defineSchema({
   })
     .index("by_approved", ["isApproved"])
     .index("by_user", ["userId"]),
+
+  // Comments on devotionals
+  comments: defineTable({
+    devotionalId: v.id("devotionals"),
+    userId: v.id("users"),
+    content: v.string(),
+    isAnonymous: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_devotional", ["devotionalId"])
+    .index("by_user", ["userId"]),
 });

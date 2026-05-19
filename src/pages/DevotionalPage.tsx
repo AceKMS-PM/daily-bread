@@ -3,7 +3,8 @@ import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 import { DEFAULT_IMAGES } from "@/constants/images";
 
@@ -50,6 +51,16 @@ export default function DevotionalPage() {
     devotional ? { devotionalId: devotional._id } : "skip"
   );
   const toggleReaction = useMutation(api.devotionals.toggleReaction);
+  const currentUser = useQuery(api.users.getCurrentUser);
+  const comments = useQuery(
+    api.comments.getCommentsByDevotional,
+    devotional ? { devotionalId: devotional._id } : "skip"
+  );
+  const createComment = useMutation(api.comments.createComment);
+  const deleteComment = useMutation(api.comments.deleteMyComment);
+  const [commentText, setCommentText] = useState("");
+  const [commentAnon, setCommentAnon] = useState(false);
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
 
   if (devotional === undefined) {
     return (
@@ -376,6 +387,141 @@ export default function DevotionalPage() {
             </div>
           </section>
         )}
+
+        {/* Comments */}
+        <section className="pt-12">
+          <h3
+            className="font-display text-xl mb-8"
+            style={{ color: "#f9f1e0" }}
+          >
+            Commentaires
+          </h3>
+
+          {isAuthenticated ? (
+            <div
+              className="p-6 rounded-xl mb-8"
+              style={{
+                background: "rgba(26,19,8,0.6)",
+                border: "1px solid rgba(201,168,76,0.12)",
+              }}
+            >
+              <textarea
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Ajouter un commentaire..."
+                rows={3}
+                className="w-full bg-transparent border rounded-lg p-4 font-serif text-sm resize-none outline-none transition-colors mb-4"
+                style={{
+                  borderColor: "rgba(201,168,76,0.2)",
+                  color: "rgba(249,241,224,0.75)",
+                  lineHeight: 1.8,
+                }}
+                maxLength={1000}
+              />
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <div
+                    className="w-10 h-6 rounded-full relative transition-colors duration-200"
+                    style={{ background: commentAnon ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.1)" }}
+                    onClick={() => setCommentAnon(!commentAnon)}
+                  >
+                    <div
+                      className="absolute top-1 w-4 h-4 rounded-full transition-transform duration-200"
+                      style={{
+                        background: commentAnon ? "#C9A84C" : "rgba(255,255,255,0.5)",
+                        transform: commentAnon ? "translateX(18px)" : "translateX(4px)",
+                      }}
+                    />
+                  </div>
+                  <span className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.5)" }}>
+                    Rester anonyme
+                  </span>
+                </label>
+                <button
+                  onClick={async () => {
+                    if (!commentText.trim() || !devotional) return;
+                    setCommentSubmitting(true);
+                    try {
+                      await createComment({ devotionalId: devotional._id, content: commentText, isAnonymous: commentAnon });
+                      setCommentText("");
+                    } catch (e) {
+                      console.error(e);
+                    } finally {
+                      setCommentSubmitting(false);
+                    }
+                  }}
+                  disabled={commentSubmitting || !commentText.trim()}
+                  className="btn-gold font-sans text-xs"
+                  style={{ padding: "0.5rem 1.5rem", opacity: commentSubmitting || !commentText.trim() ? 0.5 : 1 }}
+                >
+                  {commentSubmitting ? "..." : "Commenter"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div
+              className="p-6 rounded-xl mb-8 text-center"
+              style={{ border: "1px dashed rgba(201,168,76,0.2)" }}
+            >
+              <p className="font-serif text-sm" style={{ color: "rgba(249,241,224,0.4)" }}>
+                Connecte-toi pour ajouter un commentaire.
+              </p>
+            </div>
+          )}
+
+          {comments === undefined ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="rounded-xl p-5 h-24 animate-pulse" style={{ background: "rgba(26,19,8,0.6)" }} />
+              ))}
+            </div>
+          ) : comments.length === 0 ? (
+            <p className="font-serif text-sm text-center py-8" style={{ color: "rgba(249,241,224,0.25)" }}>
+              Aucun commentaire pour l'instant.
+            </p>
+          ) : (
+            <div className="space-y-4">
+              {comments.map((c) => (
+                <div
+                  key={c._id}
+                  className="p-5 rounded-xl relative group"
+                  style={{
+                    background: "rgba(201,168,76,0.03)",
+                    border: "1px solid rgba(201,168,76,0.08)",
+                  }}
+                >
+                  {currentUser?._id === c.userId && (
+                    <button
+                      onClick={async () => { if (confirm("Supprimer ce commentaire ?")) await deleteComment({ id: c._id }); }}
+                      className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                      style={{ color: "rgba(196,68,68,0.6)" }}
+                      title="Supprimer"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                  <div className="flex items-center gap-3 mb-3">
+                    <div
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-sacred-dark flex-shrink-0"
+                      style={{ background: "linear-gradient(135deg, #C9A84C, #E8C97A)" }}
+                    >
+                      {c.user?.name?.[0]?.toUpperCase() ?? "?"}
+                    </div>
+                    <div>
+                      <p className="font-sans text-sm text-parchment-100">{c.user?.name ?? "Anonyme"}</p>
+                      <p className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.3)" }}>
+                        {format(new Date(c.createdAt), "d MMMM yyyy", { locale: fr })}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="font-serif text-sm leading-relaxed" style={{ color: "rgba(249,241,224,0.65)", lineHeight: 1.8 }}>
+                    {c.content}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* Bottom Navigation */}
         <div
