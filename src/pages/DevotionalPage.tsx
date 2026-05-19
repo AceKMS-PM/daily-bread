@@ -6,8 +6,6 @@ import { fr } from "date-fns/locale";
 import { ArrowLeft } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 import { DEFAULT_IMAGES } from "@/constants/images";
-import ShareButtons from "@/components/share/ShareButtons";
-import { useEffect } from "react";
 
 const REACTION_CONFIG = [
   { type: "amen" as const, label: "AMEN" },
@@ -81,10 +79,6 @@ export default function DevotionalPage() {
   const related = (recentDevotionals ?? [])
     .filter((d) => d._id !== devotional._id)
     .slice(0, 2);
-
-  useEffect(() => {
-    document.title = `Daily Bread — ${devotional.title}`;
-  }, [devotional.title]);
 
   return (
     <article>
@@ -293,11 +287,15 @@ export default function DevotionalPage() {
 
         {/* Share */}
         <div className="pt-6 pb-2">
-          <ShareButtons
-            url={`${window.location.origin}/devotional/${devotional.scheduledFor}`}
-            title={`Daily Bread — ${devotional.title}`}
-            description={`${devotional.bibleBook} ${devotional.bibleChapter}:${devotional.bibleVerseStart}${devotional.bibleVerseEnd ? `-${devotional.bibleVerseEnd}` : ""} — ${devotional.bibleText?.slice(0, 120)}`}
-          />
+          <a
+            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(devotional.title)}&url=${encodeURIComponent(window.location.origin + "/devotional/" + devotional.scheduledFor)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 font-sans text-xs uppercase tracking-widest px-4 py-2 rounded-lg transition-colors"
+            style={{ border: "1px solid rgba(201,168,76,0.2)", color: "#C9A84C" }}
+          >
+            Partager sur X / Twitter
+          </a>
         </div>
 
         {/* Author */}
