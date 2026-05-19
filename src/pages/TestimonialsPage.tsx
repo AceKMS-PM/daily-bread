@@ -13,12 +13,13 @@ export default function TestimonialsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const handleSubmit = async () => {
     setError("");
     setSubmitting(true);
     try {
-      await createTestimonial({ content });
+      await createTestimonial({ content, isAnonymous });
       setContent("");
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 3000);
@@ -75,12 +76,30 @@ export default function TestimonialsPage() {
               {error}
             </p>
           )}
-          <div className="flex justify-end mt-4">
+          <div className="flex items-center justify-between mt-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div
+                className="w-10 h-6 rounded-full relative transition-colors duration-200"
+                style={{ background: isAnonymous ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.1)" }}
+                onClick={() => setIsAnonymous(!isAnonymous)}
+              >
+                <div
+                  className="absolute top-1 w-4 h-4 rounded-full transition-transform duration-200"
+                  style={{
+                    background: isAnonymous ? "#C9A84C" : "rgba(255,255,255,0.5)",
+                    transform: isAnonymous ? "translateX(18px)" : "translateX(4px)",
+                  }}
+                />
+              </div>
+              <span className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.5)" }}>
+                Rester anonyme
+              </span>
+            </label>
             <button
               onClick={handleSubmit}
               disabled={submitting || !content.trim()}
               className="btn-gold font-sans text-xs"
-              style={{ padding: "0.5rem 1.5rem" }}
+              style={{ padding: "0.5rem 1.5rem", opacity: submitting || !content.trim() ? 0.5 : 1 }}
             >
               {submitting ? "..." : submitted ? "✓ Envoyé" : "Envoyer"}
             </button>

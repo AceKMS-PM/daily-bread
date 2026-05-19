@@ -80,6 +80,7 @@ export default defineSchema({
     isPrayed: v.boolean(),
     prayerCount: v.number(),
     isHidden: v.optional(v.boolean()),
+    isAnonymous: v.optional(v.boolean()),
     createdAt: v.number(),
   })
     .index("by_devotional", ["devotionalId"])
@@ -120,6 +121,7 @@ export default defineSchema({
     userId: v.id("users"),
     content: v.string(),
     isApproved: v.boolean(),
+    isAnonymous: v.optional(v.boolean()),
     createdAt: v.number(),
   })
     .index("by_approved", ["isApproved"])

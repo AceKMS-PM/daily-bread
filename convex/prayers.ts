@@ -2,6 +2,11 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAdmin, requireAuth, requireNotBanned } from "./helpers";
 
+function resolveUser(user: { name?: string; imageUrl?: string } | null, isAnonymous: boolean) {
+  if (isAnonymous) return { name: null, imageUrl: null };
+  return user ? { name: user.name, imageUrl: user.imageUrl } : null;
+}
+
 export const getPublicPrayerRequests = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, { limit = 20 }) => {
@@ -14,7 +19,7 @@ export const getPublicPrayerRequests = query({
     return Promise.all(
       prayers.map(async (p) => {
         const user = await ctx.db.get(p.userId);
-        return { ...p, user };
+        return { ...p, user: resolveUser(user, p.isAnonymous ?? false) };
       })
     );
   },
@@ -27,7 +32,7 @@ export const getAllPrayers = query({
     return Promise.all(
       prayers.map(async (p) => {
         const user = await ctx.db.get(p.userId);
-        return { ...p, user };
+        return { ...p, user: resolveUser(user, p.isAnonymous ?? false) };
       })
     );
   },
@@ -48,6 +53,7 @@ export const createPrayerRequest = mutation({
     content: v.string(),
     devotionalId: v.optional(v.id("devotionals")),
     isPublic: v.boolean(),
+    isAnonymous: v.boolean(),
   },
   handler: async (ctx, args) => {
     const user = await requireNotBanned(ctx);
@@ -74,13 +80,12 @@ export const createPrayerRequest = mutation({
   },
 });
 
-export const prayForRequest = mutation({
+export const togglePrayed = mutation({
   args: { id: v.id("prayerRequests") },
   handler: async (ctx, { id }) => {
-    const user = await requireAuth(ctx);
+    await requireAuth(ctx);
     const prayer = await ctx.db.get(id);
-    if (!prayer) return;
-    if (prayer.userId === user._id) throw new Error("Vous ne pouvez pas prier pour votre propre demande.");
-    await ctx.db.patch(id, { prayerCount: prayer.prayerCount + 1 });
+    if (!prayer) throw new Error("Demande de prière introuvable.");
+    await ctx.db.patch(id, { isPrayed: !prayer.isPrayed });
   },
 });

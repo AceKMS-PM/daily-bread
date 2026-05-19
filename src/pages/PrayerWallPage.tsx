@@ -13,6 +13,7 @@ export default function PrayerWallPage() {
 
   const [content, setContent] = useState("");
   const [isPublic, setIsPublic] = useState(true);
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -20,7 +21,7 @@ export default function PrayerWallPage() {
     if (!content.trim()) return;
     setSubmitting(true);
     try {
-      await createPrayer({ content, isPublic });
+      await createPrayer({ content, isPublic, isAnonymous });
       setContent("");
       setSubmitted(true);
       setTimeout(() => setSubmitted(false), 3000);
@@ -64,25 +65,45 @@ export default function PrayerWallPage() {
             rows={4}
             className="field-input resize-none mb-4"
           />
-          <div className="flex items-center justify-between">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <div
-                className="w-10 h-6 rounded-full relative transition-colors duration-200"
-                style={{ background: isPublic ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.1)" }}
-                onClick={() => setIsPublic(!isPublic)}
-              >
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="flex items-center gap-3 cursor-pointer">
                 <div
-                  className="absolute top-1 w-4 h-4 rounded-full transition-transform duration-200"
-                  style={{
-                    background: isPublic ? "#C9A84C" : "rgba(255,255,255,0.5)",
-                    transform: isPublic ? "translateX(18px)" : "translateX(4px)",
-                  }}
-                />
-              </div>
-              <span className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.5)" }}>
-                {isPublic ? "Public" : "Privé (admin seulement)"}
-              </span>
-            </label>
+                  className="w-10 h-6 rounded-full relative transition-colors duration-200"
+                  style={{ background: isPublic ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.1)" }}
+                  onClick={() => setIsPublic(!isPublic)}
+                >
+                  <div
+                    className="absolute top-1 w-4 h-4 rounded-full transition-transform duration-200"
+                    style={{
+                      background: isPublic ? "#C9A84C" : "rgba(255,255,255,0.5)",
+                      transform: isPublic ? "translateX(18px)" : "translateX(4px)",
+                    }}
+                  />
+                </div>
+                <span className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.5)" }}>
+                  {isPublic ? "Public" : "Privé (admin seulement)"}
+                </span>
+              </label>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div
+                  className="w-10 h-6 rounded-full relative transition-colors duration-200"
+                  style={{ background: isAnonymous ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.1)" }}
+                  onClick={() => setIsAnonymous(!isAnonymous)}
+                >
+                  <div
+                    className="absolute top-1 w-4 h-4 rounded-full transition-transform duration-200"
+                    style={{
+                      background: isAnonymous ? "#C9A84C" : "rgba(255,255,255,0.5)",
+                      transform: isAnonymous ? "translateX(18px)" : "translateX(4px)",
+                    }}
+                  />
+                </div>
+                <span className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.5)" }}>
+                  Rester anonyme
+                </span>
+              </label>
+            </div>
             <button
               onClick={handleSubmit}
               disabled={submitting || !content.trim()}

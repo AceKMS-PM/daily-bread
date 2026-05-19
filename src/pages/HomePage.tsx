@@ -175,7 +175,7 @@ export default function HomePage() {
 
 function PrayerSidebar() {
   const prayers = useQuery(api.prayers.getPublicPrayerRequests, { limit: 3 });
-  const prayFor = useMutation(api.prayers.prayForRequest);
+  const prayFor = useMutation(api.prayers.togglePrayed);
 
   if (!prayers || prayers.length === 0) return null;
 

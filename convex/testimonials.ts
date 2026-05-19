@@ -2,6 +2,11 @@ import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { requireAdmin, requireNotBanned } from "./helpers";
 
+function resolveUser(user: { name?: string; imageUrl?: string } | null, isAnonymous: boolean) {
+  if (isAnonymous) return { name: null, imageUrl: null };
+  return user ? { name: user.name, imageUrl: user.imageUrl } : null;
+}
+
 export const getApprovedTestimonials = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, { limit = 20 }) => {
@@ -13,7 +18,7 @@ export const getApprovedTestimonials = query({
     return Promise.all(
       testimonials.map(async (t) => {
         const user = await ctx.db.get(t.userId);
-        return { ...t, user: user ? { name: user.name, imageUrl: user.imageUrl } : null };
+        return { ...t, user: resolveUser(user, t.isAnonymous ?? false) };
       })
     );
   },
@@ -26,15 +31,15 @@ export const getAllTestimonials = query({
     return Promise.all(
       testimonials.map(async (t) => {
         const user = await ctx.db.get(t.userId);
-        return { ...t, user: user ? { name: user.name, imageUrl: user.imageUrl } : null };
+        return { ...t, user: resolveUser(user, t.isAnonymous ?? false) };
       })
     );
   },
 });
 
 export const createTestimonial = mutation({
-  args: { content: v.string() },
-  handler: async (ctx, { content }) => {
+  args: { content: v.string(), isAnonymous: v.boolean() },
+  handler: async (ctx, { content, isAnonymous }) => {
     const user = await requireNotBanned(ctx);
     if (!user) throw new Error("Connecte-toi pour laisser un témoignage.");
     const trimmed = content.trim();
@@ -54,6 +59,7 @@ export const createTestimonial = mutation({
       userId: user._id,
       content: trimmed,
       isApproved: false,
+      isAnonymous,
       createdAt: Date.now(),
     });
   },
