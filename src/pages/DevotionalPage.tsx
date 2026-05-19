@@ -6,6 +6,8 @@ import { fr } from "date-fns/locale";
 import { ArrowLeft } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 import { DEFAULT_IMAGES } from "@/constants/images";
+import ShareButtons from "@/components/share/ShareButtons";
+import { useEffect } from "react";
 
 const REACTION_CONFIG = [
   { type: "amen" as const, label: "AMEN" },
@@ -79,6 +81,10 @@ export default function DevotionalPage() {
   const related = (recentDevotionals ?? [])
     .filter((d) => d._id !== devotional._id)
     .slice(0, 2);
+
+  useEffect(() => {
+    document.title = `Daily Bread — ${devotional.title}`;
+  }, [devotional.title]);
 
   return (
     <article>
@@ -283,6 +289,15 @@ export default function DevotionalPage() {
               </button>
             );
           })}
+        </div>
+
+        {/* Share */}
+        <div className="pt-6 pb-2">
+          <ShareButtons
+            url={`${window.location.origin}/devotional/${devotional.scheduledFor}`}
+            title={`Daily Bread — ${devotional.title}`}
+            description={`${devotional.bibleBook} ${devotional.bibleChapter}:${devotional.bibleVerseStart}${devotional.bibleVerseEnd ? `-${devotional.bibleVerseEnd}` : ""} — ${devotional.bibleText?.slice(0, 120)}`}
+          />
         </div>
 
         {/* Author */}
