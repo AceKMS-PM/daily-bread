@@ -3,12 +3,15 @@ import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { Trash2 } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 
 export default function TestimonialsPage() {
   const { isAuthenticated } = useConvexAuth();
+  const currentUser = useQuery(api.users.getCurrentUser);
   const testimonials = useQuery(api.testimonials.getApprovedTestimonials, { limit: 30 });
   const createTestimonial = useMutation(api.testimonials.createTestimonial);
+  const deleteTestimonial = useMutation(api.testimonials.deleteMyTestimonial);
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -136,13 +139,23 @@ export default function TestimonialsPage() {
           {testimonials.map((t, i) => (
             <div
               key={t._id}
-              className="fade-up rounded-xl p-6 transition-all"
+              className="fade-up rounded-xl p-6 transition-all relative group"
               style={{
                 animationDelay: `${i * 0.05}s`,
                 background: "rgba(201,168,76,0.04)",
                 border: "1px solid rgba(201,168,76,0.1)",
               }}
             >
+              {currentUser?._id === t.userId && (
+                <button
+                  onClick={async () => { if (confirm("Supprimer ce témoignage ?")) await deleteTestimonial({ id: t._id }); }}
+                  className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                  style={{ color: "rgba(196,68,68,0.6)" }}
+                  title="Supprimer"
+                >
+                  <Trash2 size={14} />
+                </button>
+              )}
               <div className="flex items-center gap-3 mb-4">
                 <div
                   className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-sacred-dark flex-shrink-0"

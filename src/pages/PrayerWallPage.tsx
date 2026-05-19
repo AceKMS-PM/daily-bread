@@ -4,11 +4,14 @@ import { useConvexAuth } from "convex/react";
 import { useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { Trash2 } from "lucide-react";
 import CrossIcon from "@/components/ui/CrossIcon";
 
 export default function PrayerWallPage() {
+  const currentUser = useQuery(api.users.getCurrentUser);
   const prayers = useQuery(api.prayers.getPublicPrayerRequests, { limit: 50 });
   const createPrayer = useMutation(api.prayers.createPrayerRequest);
+  const deletePrayer = useMutation(api.prayers.deleteMyPrayer);
   const { isAuthenticated } = useConvexAuth();
 
   const [content, setContent] = useState("");
@@ -134,12 +137,22 @@ export default function PrayerWallPage() {
           : prayers.map((p) => (
               <div
                 key={p._id}
-                className="p-6 rounded-xl transition-all duration-200"
+                className="p-6 rounded-xl transition-all duration-200 relative group"
                 style={{
                   background: "rgba(201,168,76,0.04)",
                   border: "1px solid rgba(201,168,76,0.1)",
                 }}
               >
+                {currentUser?._id === p.userId && (
+                  <button
+                    onClick={async () => { if (confirm("Supprimer cette demande de prière ?")) await deletePrayer({ id: p._id }); }}
+                    className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
+                    style={{ color: "rgba(196,68,68,0.6)" }}
+                    title="Supprimer"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
                 <div className="flex items-center gap-3 mb-4">
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-sacred-dark flex-shrink-0"

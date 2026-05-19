@@ -61,14 +61,6 @@ export const createPrayerRequest = mutation({
     if (args.content.trim().length === 0) throw new Error("Le contenu ne peut pas être vide.");
     if (args.content.length > 1000) throw new Error("La prière ne peut pas dépasser 1000 caractères.");
 
-    const oneHourAgo = Date.now() - 60 * 60 * 1000;
-    const recentPrayers = await ctx.db
-      .query("prayerRequests")
-      .withIndex("by_user", (q) => q.eq("userId", user._id))
-      .filter((q) => q.gte(q.field("createdAt"), oneHourAgo))
-      .collect();
-    if (recentPrayers.length >= 5) throw new Error("Trop de prières soumises. Réessayez dans une heure.");
-
     return ctx.db.insert("prayerRequests", {
       ...args,
       content: args.content.trim(),
@@ -77,6 +69,17 @@ export const createPrayerRequest = mutation({
       prayerCount: 0,
       createdAt: Date.now(),
     });
+  },
+});
+
+export const deleteMyPrayer = mutation({
+  args: { id: v.id("prayerRequests") },
+  handler: async (ctx, { id }) => {
+    const user = await requireNotBanned(ctx);
+    const prayer = await ctx.db.get(id);
+    if (!prayer) throw new Error("Demande de prière introuvable.");
+    if (prayer.userId !== user._id) throw new Error("Tu ne peux supprimer que ta propre demande.");
+    await ctx.db.delete(id);
   },
 });
 
