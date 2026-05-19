@@ -287,15 +287,35 @@ export default function DevotionalPage() {
 
         {/* Share */}
         <div className="pt-6 pb-2">
-          <a
-            href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(devotional.title)}&url=${encodeURIComponent(window.location.origin + "/devotional/" + devotional.scheduledFor)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 font-sans text-xs uppercase tracking-widest px-4 py-2 rounded-lg transition-colors"
-            style={{ border: "1px solid rgba(201,168,76,0.2)", color: "#C9A84C" }}
-          >
-            Partager sur X / Twitter
-          </a>
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-sans text-xs uppercase tracking-widest" style={{ color: "rgba(249,241,224,0.3)" }}>
+              Partager
+            </span>
+            <a
+              href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(devotional.title)}&url=${encodeURIComponent(window.location.origin + "/devotional/" + devotional.scheduledFor)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="text-xs font-sans px-3 py-1.5 rounded-lg transition-colors"
+              style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(249,241,224,0.5)" }}
+            >
+              X / Twitter
+            </a>
+            <a
+              href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin + "/devotional/" + devotional.scheduledFor)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="text-xs font-sans px-3 py-1.5 rounded-lg transition-colors"
+              style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(249,241,224,0.5)" }}
+            >
+              Facebook
+            </a>
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(devotional.title + " " + window.location.origin + "/devotional/" + devotional.scheduledFor)}`}
+              target="_blank" rel="noopener noreferrer"
+              className="text-xs font-sans px-3 py-1.5 rounded-lg transition-colors"
+              style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(249,241,224,0.5)" }}
+            >
+              WhatsApp
+            </a>
+          </div>
         </div>
 
         {/* Author */}
