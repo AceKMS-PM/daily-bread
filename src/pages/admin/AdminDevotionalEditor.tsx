@@ -210,7 +210,7 @@ export default function AdminDevotionalEditor() {
             </a>
           )}
           <button
-            onClick={() => handleSave("draft")}
+            onClick={() => handleSave(form.status)}
             disabled={saving}
             className="btn-ghost"
             style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}

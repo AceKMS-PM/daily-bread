@@ -11,6 +11,7 @@
 import type * as announcements from "../announcements.js";
 import type * as auth from "../auth.js";
 import type * as comments from "../comments.js";
+import type * as crons from "../crons.js";
 import type * as devotionals from "../devotionals.js";
 import type * as files from "../files.js";
 import type * as helpers from "../helpers.js";
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   announcements: typeof announcements;
   auth: typeof auth;
   comments: typeof comments;
+  crons: typeof crons;
   devotionals: typeof devotionals;
   files: typeof files;
   helpers: typeof helpers;

@@ -45,18 +45,24 @@ export const getRecentDevotionals = query({
   args: { limit: v.optional(v.number()), tag: v.optional(v.string()) },
   handler: async (ctx, { limit = 10, tag }) => {
     const safeLimit = Math.min(Math.max(limit ?? 10, 1), 50);
+    const today = new Date().toISOString().split("T")[0];
     let devotionals = await ctx.db
       .query("devotionals")
-      .withIndex("by_status", (q) => q.eq("status", "published"))
+      .withIndex("by_status_date", (q) => q.eq("status", "published"))
       .order("desc")
-      .take(safeLimit);
+      .take(200);
+    devotionals = devotionals
+      .filter((d) => d.scheduledFor <= today)
+      .slice(0, safeLimit);
     if (tag) {
       const all = await ctx.db
         .query("devotionals")
-        .withIndex("by_status", (q) => q.eq("status", "published"))
+        .withIndex("by_status_date", (q) => q.eq("status", "published"))
         .order("desc")
         .collect();
-      devotionals = all.filter((d) => d.tags.includes(tag)).slice(0, safeLimit);
+      devotionals = all
+        .filter((d) => d.scheduledFor <= today && d.tags.includes(tag))
+        .slice(0, safeLimit);
     }
     return Promise.all(
       devotionals.map(async (d) => {
@@ -212,12 +218,16 @@ export const updateDevotional = mutation({
   handler: async (ctx, { id, ...updates }) => {
     await requireAdmin(ctx);
 
-    if (updates.status === "published" && updates.scheduledFor) {
-      const existing = await ctx.db
-        .query("devotionals")
-        .withIndex("by_status_date", (q) => q.eq("status", "published").eq("scheduledFor", updates.scheduledFor!))
-        .first();
-      if (existing && existing._id !== id) throw new Error(`Une dévotion est déjà publiée pour le ${updates.scheduledFor}.`);
+    if (updates.scheduledFor) {
+      const devotional = await ctx.db.get(id);
+      const targetStatus = updates.status ?? devotional?.status;
+      if (targetStatus === "published" || devotional?.status === "published") {
+        const existing = await ctx.db
+          .query("devotionals")
+          .withIndex("by_status_date", (q) => q.eq("status", "published").eq("scheduledFor", updates.scheduledFor!))
+          .first();
+        if (existing && existing._id !== id) throw new Error(`Une dévotion est déjà publiée pour le ${updates.scheduledFor}.`);
+      }
     }
 
     const cleanUpdates: Record<string, any> = {};
