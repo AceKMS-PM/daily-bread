@@ -32,23 +32,23 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ background: "#0A0805" }}>
+    <div className="min-h-screen flex" style={{ background: "var(--sacred-dark)" }}>
       {/* Sidebar */}
       <aside
         className="w-64 flex-shrink-0 flex flex-col py-8 px-4 sticky top-0 h-screen"
         style={{
-          background: "linear-gradient(180deg, #0D0A06 0%, #110D07 100%)",
-          borderRight: "1px solid rgba(201,168,76,0.1)",
+          background: "var(--gradient-sacred)",
+          borderRight: "1px solid rgba(var(--gold-rgb),0.1)",
         }}
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-2 mb-10">
-          <CrossIcon size={22} color="#C9A84C" />
+          <CrossIcon size={22} color="var(--gold)" />
           <div>
-            <p className="font-display text-lg leading-none" style={{ background: "linear-gradient(135deg, #C9A84C, #E8C97A)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <p className="font-display text-lg leading-none gold-text">
               Daily Bread
             </p>
-            <p className="font-sans" style={{ fontSize: "0.55rem", letterSpacing: "0.15em", color: "rgba(201,168,76,0.5)", textTransform: "uppercase" }}>
+            <p className="font-sans" style={{ fontSize: "0.55rem", letterSpacing: "0.15em", color: "rgba(var(--gold-rgb),0.5)", textTransform: "uppercase" }}>
               Administration
             </p>
           </div>
@@ -65,7 +65,7 @@ export default function AdminLayout() {
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 font-sans text-sm ${
                   isActive
                     ? "bg-gold-dark/30 text-gold-DEFAULT border border-gold-dark/50"
-                    : "text-parchment-200/60 hover:text-parchment-100 hover:bg-white/5"
+                    : "text-parchment-200/85 hover:text-parchment-100 hover:bg-gold-DEFAULT/[0.06]"
                 }`
               }
             >
@@ -79,18 +79,18 @@ export default function AdminLayout() {
         <div className="mt-auto pt-6 border-t border-white/5">
           {currentUser && (
             <div className="flex items-center gap-3 px-3 mb-4">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-sacred-dark" style={{ background: "linear-gradient(135deg, #C9A84C, #E8C97A)" }}>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-text-on-gold" style={{ background: "var(--gradient-gold)" }}>
                 {currentUser.name?.[0]?.toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-sans text-parchment-100 truncate">{currentUser.name}</p>
-                <p className="text-xs font-sans" style={{ color: "rgba(201,168,76,0.6)" }}>{currentUser.role}</p>
+                <p className="text-xs font-sans" style={{ color: "rgba(var(--gold-rgb),0.6)" }}>{currentUser.role}</p>
               </div>
             </div>
           )}
           <button
             onClick={() => navigate("/")}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg w-full text-sm font-sans text-parchment-200/50 hover:text-parchment-100 transition-colors"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg w-full text-sm font-sans text-parchment-200/75 hover:text-parchment-100 transition-colors"
           >
             <Home size={15} /> Site public
           </button>

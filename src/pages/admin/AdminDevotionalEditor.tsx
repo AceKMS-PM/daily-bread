@@ -177,8 +177,8 @@ export default function AdminDevotionalEditor() {
     cursor: "pointer",
     border: "none",
     transition: "all 0.2s",
-    background: activeTab === tab ? "rgba(201,168,76,0.15)" : "transparent",
-    color: activeTab === tab ? "#C9A84C" : "rgba(249,241,224,0.4)",
+    background: activeTab === tab ? "rgba(var(--gold-rgb),0.15)" : "transparent",
+    color: activeTab === tab ? "var(--gold)" : "rgba(var(--text-rgb),0.55)",
   });
 
   return (
@@ -188,7 +188,7 @@ export default function AdminDevotionalEditor() {
         <button
           onClick={() => navigate("/admin/devotionals")}
           className="p-2 rounded-lg transition-colors hover:bg-white/5"
-          style={{ color: "rgba(249,241,224,0.4)" }}
+          style={{ color: "rgba(var(--text-rgb),0.55)" }}
         >
           <ArrowLeft size={18} />
         </button>
@@ -237,7 +237,7 @@ export default function AdminDevotionalEditor() {
         placeholder="Titre de la dévotion..."
         className="w-full font-display text-3xl mb-6 bg-transparent border-0 border-b outline-none text-parchment-100"
         style={{
-          borderBottomColor: "rgba(201,168,76,0.2)",
+          borderBottomColor: "rgba(var(--gold-rgb),0.2)",
           paddingBottom: "0.75rem",
           fontSize: "1.8rem",
         }}
@@ -246,7 +246,7 @@ export default function AdminDevotionalEditor() {
       {/* Tabs */}
       <div
         className="flex items-center gap-1 mb-8 p-1 rounded-xl"
-        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(201,168,76,0.08)" }}
+        style={{ background: "rgba(var(--white-rgb),0.03)", border: "1px solid rgba(var(--gold-rgb),0.08)" }}
       >
         <button style={tabStyle("verse")} onClick={() => setActiveTab("verse")}>Verset biblique</button>
         <button style={tabStyle("content")} onClick={() => setActiveTab("content")}>Contenu</button>
@@ -266,7 +266,7 @@ export default function AdminDevotionalEditor() {
                 style={{ cursor: "pointer" }}
               >
                 {BIBLE_BOOKS.map((b) => (
-                  <option key={b} value={b} style={{ background: "#1A1308" }}>{b}</option>
+                  <option key={b} value={b}>{b}</option>
                 ))}
               </select>
             </div>
@@ -289,7 +289,7 @@ export default function AdminDevotionalEditor() {
                 style={{ cursor: "pointer" }}
               >
                 {TRANSLATIONS.map((t) => (
-                  <option key={t} value={t} style={{ background: "#1A1308" }}>{t}</option>
+                  <option key={t} value={t}>{t}</option>
                 ))}
               </select>
             </div>
@@ -334,10 +334,10 @@ export default function AdminDevotionalEditor() {
           {/* Preview */}
           {form.bibleText && (
             <div className="verse-card">
-              <p className="font-serif italic" style={{ fontSize: "1.1rem", lineHeight: 2, color: "#f9f1e0" }}>
+              <p className="font-serif italic" style={{ fontSize: "1.1rem", lineHeight: 2, color: "var(--parchment-100)" }}>
                 {form.bibleText}
               </p>
-              <p className="font-sans text-xs mt-4 tracking-widest uppercase" style={{ color: "rgba(201,168,76,0.6)" }}>
+              <p className="font-sans text-xs mt-4 tracking-widest uppercase" style={{ color: "rgba(var(--gold-rgb),0.6)" }}>
                 — {form.bibleBook} {form.bibleChapter}:{form.bibleVerseStart} · {form.bibleTranslation}
               </p>
             </div>
@@ -409,9 +409,9 @@ export default function AdminDevotionalEditor() {
                   onClick={() => set("status", s)}
                   className="px-4 py-2 rounded-lg font-sans text-sm transition-all"
                   style={{
-                    background: form.status === s ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.03)",
-                    border: `1px solid ${form.status === s ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.06)"}`,
-                    color: form.status === s ? "#C9A84C" : "rgba(249,241,224,0.4)",
+                    background: form.status === s ? "rgba(var(--gold-rgb),0.15)" : "rgba(var(--white-rgb),0.03)",
+                    border: `1px solid ${form.status === s ? "rgba(var(--gold-rgb),0.4)" : "rgba(var(--white-rgb),0.06)"}`,
+                    color: form.status === s ? "var(--gold)" : "rgba(var(--text-rgb),0.55)",
                   }}
                 >
                   {s === "draft" ? "Brouillon" : s === "scheduled" ? "Planifié" : "Publié"}
@@ -447,7 +447,7 @@ export default function AdminDevotionalEditor() {
                   )}
                 </button>
 
-                <p className="font-sans text-[10px] mt-1" style={{ color: "rgba(249,241,224,0.3)" }}>
+                <p className="font-sans text-[10px] mt-1" style={{ color: "rgba(var(--text-rgb),0.45)" }}>
                   JPEG, PNG ou WebP
                 </p>
               </div>
@@ -469,7 +469,7 @@ export default function AdminDevotionalEditor() {
 
             {/* Preview */}
             {showImage && (
-              <div className="mt-3 rounded-lg overflow-hidden border relative" style={{ borderColor: "rgba(201,168,76,0.15)", maxWidth: 400 }}>
+              <div className="mt-3 rounded-lg overflow-hidden border relative" style={{ borderColor: "rgba(var(--gold-rgb),0.15)", maxWidth: 400 }}>
                 <img
                   src={previewUrl}
                   alt="cover preview"
@@ -497,9 +497,9 @@ export default function AdminDevotionalEditor() {
                   onClick={() => toggleTag(tag)}
                   className="px-3 py-1 rounded-full font-sans text-xs transition-all"
                   style={{
-                    background: form.tags.includes(tag) ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.03)",
-                    border: `1px solid ${form.tags.includes(tag) ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.06)"}`,
-                    color: form.tags.includes(tag) ? "#C9A84C" : "rgba(249,241,224,0.35)",
+                    background: form.tags.includes(tag) ? "rgba(var(--gold-rgb),0.15)" : "rgba(var(--white-rgb),0.03)",
+                    border: `1px solid ${form.tags.includes(tag) ? "rgba(var(--gold-rgb),0.4)" : "rgba(var(--white-rgb),0.06)"}`,
+                    color: form.tags.includes(tag) ? "var(--gold)" : "rgba(var(--text-rgb),0.50)",
                   }}
                 >
                   {tag}

@@ -15,10 +15,10 @@ export default function AdminDashboard() {
   const scheduled = allDevotionals?.filter((d) => d.status === "scheduled").length ?? 0;
 
   const stats = [
-    { label: "Dévotions publiées", value: published, icon: BookOpen, color: "#C9A84C" },
-    { label: "Brouillons", value: drafts, icon: Eye, color: "rgba(249,241,224,0.5)" },
-    { label: "Planifiées", value: scheduled, icon: Eye, color: "#7C8C5A" },
-    { label: "Membres", value: allUsers?.length ?? 0, icon: Users, color: "#C9A84C" },
+    { label: "Dévotions publiées", value: published, icon: BookOpen, color: "var(--gold)" },
+    { label: "Brouillons", value: drafts, icon: Eye, color: "rgba(var(--text-rgb),0.65)" },
+    { label: "Planifiées", value: scheduled, icon: Eye, color: "var(--olive)" },
+    { label: "Membres", value: allUsers?.length ?? 0, icon: Users, color: "var(--gold)" },
   ];
 
   return (
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="mb-10">
         <h1 className="font-display text-3xl text-parchment-100 mb-1">Tableau de bord</h1>
-        <p className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.4)" }}>
+        <p className="font-sans text-sm" style={{ color: "rgba(var(--text-rgb),0.55)" }}>
           {format(new Date(), "EEEE d MMMM yyyy", { locale: fr })}
         </p>
       </div>
@@ -38,15 +38,15 @@ export default function AdminDashboard() {
             key={label}
             className="p-6 rounded-xl"
             style={{
-              background: "linear-gradient(135deg, rgba(26,19,8,0.8) 0%, rgba(42,31,14,0.8) 100%)",
-              border: "1px solid rgba(201,168,76,0.1)",
+              background: "linear-gradient(135deg, rgba(var(--surface-rgb),0.8) 0%, rgba(var(--warm-rgb),0.8) 100%)",
+              border: "1px solid rgba(var(--gold-rgb),0.1)",
             }}
           >
             <Icon size={18} style={{ color }} className="mb-3" />
             <p className="font-display text-3xl mb-1" style={{ color }}>
               {value}
             </p>
-            <p className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.4)" }}>
+            <p className="font-sans text-xs" style={{ color: "rgba(var(--text-rgb),0.55)" }}>
               {label}
             </p>
           </div>
@@ -58,25 +58,25 @@ export default function AdminDashboard() {
         <div
           className="p-6 rounded-xl"
           style={{
-            background: "linear-gradient(135deg, rgba(26,19,8,0.8) 0%, rgba(42,31,14,0.8) 100%)",
-            border: "1px solid rgba(201,168,76,0.15)",
+            background: "linear-gradient(135deg, rgba(var(--surface-rgb),0.8) 0%, rgba(var(--warm-rgb),0.8) 100%)",
+            border: "1px solid rgba(var(--gold-rgb),0.15)",
           }}
         >
           <h3 className="font-display text-lg text-parchment-100 mb-4">Dévotion d'aujourd'hui</h3>
           {todayDevotional ? (
             <div>
               <p className="font-serif text-parchment-200 mb-1">{todayDevotional.title}</p>
-              <p className="font-sans text-xs" style={{ color: "rgba(201,168,76,0.7)" }}>
+              <p className="font-sans text-xs" style={{ color: "rgba(var(--gold-rgb),0.7)" }}>
                 {todayDevotional.bibleBook} {todayDevotional.bibleChapter}:{todayDevotional.bibleVerseStart}
               </p>
-              <div className="flex gap-4 mt-4 text-xs font-sans" style={{ color: "rgba(249,241,224,0.4)" }}>
+              <div className="flex gap-4 mt-4 text-xs font-sans" style={{ color: "rgba(var(--text-rgb),0.55)" }}>
                 <span>👁 {todayDevotional.viewCount} vues</span>
                 <span>❤️ {todayDevotional.likeCount}</span>
               </div>
             </div>
           ) : (
             <div className="flex flex-col items-start gap-3">
-              <p className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.35)" }}>
+              <p className="font-sans text-sm" style={{ color: "rgba(var(--text-rgb),0.50)" }}>
                 Aucune dévotion publiée pour aujourd'hui
               </p>
               <Link to="/admin/devotionals/new" className="btn-gold" style={{ padding: "0.5rem 1.25rem", fontSize: "0.8rem" }}>
@@ -91,8 +91,8 @@ export default function AdminDashboard() {
         <div
           className="p-6 rounded-xl"
           style={{
-            background: "linear-gradient(135deg, rgba(26,19,8,0.8) 0%, rgba(42,31,14,0.8) 100%)",
-            border: "1px solid rgba(201,168,76,0.15)",
+            background: "linear-gradient(135deg, rgba(var(--surface-rgb),0.8) 0%, rgba(var(--warm-rgb),0.8) 100%)",
+            border: "1px solid rgba(var(--gold-rgb),0.15)",
           }}
         >
           <h3 className="font-display text-lg text-parchment-100 mb-4">Actions rapides</h3>
@@ -101,9 +101,9 @@ export default function AdminDashboard() {
               to="/admin/devotionals/new"
               className="flex items-center gap-3 px-4 py-3 rounded-lg font-sans text-sm transition-all"
               style={{
-                background: "rgba(201,168,76,0.1)",
-                border: "1px solid rgba(201,168,76,0.2)",
-                color: "#C9A84C",
+                background: "rgba(var(--gold-rgb),0.1)",
+                border: "1px solid rgba(var(--gold-rgb),0.2)",
+                color: "var(--gold)",
               }}
             >
               <Plus size={16} />
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
             <Link
               to="/admin/devotionals"
               className="flex items-center gap-3 px-4 py-3 rounded-lg font-sans text-sm transition-all hover:bg-white/5"
-              style={{ color: "rgba(249,241,224,0.5)", border: "1px solid rgba(255,255,255,0.05)" }}
+              style={{ color: "rgba(var(--text-rgb),0.65)", border: "1px solid rgba(var(--white-rgb),0.05)" }}
             >
               <BookOpen size={16} />
               Gérer les dévotions
@@ -129,11 +129,11 @@ export default function AdminDashboard() {
             <div
               key={d._id}
               className="flex items-center justify-between p-4 rounded-lg"
-              style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(201,168,76,0.06)" }}
+              style={{ background: "rgba(var(--white-rgb),0.02)", border: "1px solid rgba(var(--gold-rgb),0.06)" }}
             >
               <div>
                 <p className="font-serif text-parchment-200 text-sm">{d.title}</p>
-                <p className="font-sans text-xs mt-0.5" style={{ color: "rgba(249,241,224,0.3)" }}>
+                <p className="font-sans text-xs mt-0.5" style={{ color: "rgba(var(--text-rgb),0.45)" }}>
                   {d.scheduledFor} · {d.bibleBook} {d.bibleChapter}:{d.bibleVerseStart}
                 </p>
               </div>
@@ -143,16 +143,16 @@ export default function AdminDashboard() {
                   style={{
                     background:
                       d.status === "published"
-                        ? "rgba(124,140,90,0.2)"
+                        ? "rgba(var(--olive-rgb),0.2)"
                         : d.status === "scheduled"
-                        ? "rgba(201,168,76,0.15)"
-                        : "rgba(255,255,255,0.05)",
+                        ? "rgba(var(--gold-rgb),0.15)"
+                        : "rgba(var(--white-rgb),0.05)",
                     color:
                       d.status === "published"
-                        ? "#A4B478"
+                        ? "var(--olive-light)"
                         : d.status === "scheduled"
-                        ? "#C9A84C"
-                        : "rgba(249,241,224,0.3)",
+                        ? "var(--gold)"
+                        : "rgba(var(--text-rgb),0.45)",
                   }}
                 >
                   {d.status === "published" ? "Publié" : d.status === "scheduled" ? "Planifié" : "Brouillon"}
@@ -160,7 +160,7 @@ export default function AdminDashboard() {
                 <Link
                   to={`/admin/devotionals/${d._id}/edit`}
                   className="font-sans text-xs"
-                  style={{ color: "rgba(201,168,76,0.5)" }}
+                  style={{ color: "rgba(var(--gold-rgb),0.5)" }}
                 >
                   Éditer
                 </Link>

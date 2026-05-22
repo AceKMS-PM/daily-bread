@@ -16,14 +16,14 @@ export default function ArchivePage() {
     <div className="px-6 py-16 max-w-6xl mx-auto">
       {/* Header */}
       <div className="text-center mb-16 fade-up">
-        <CrossIcon size={32} color="rgba(201,168,76,0.4)" className="mx-auto mb-6" />
+        <CrossIcon size={32} color="rgba(var(--gold-rgb),0.4)" className="mx-auto mb-6" />
         <h1
           className="font-display mb-4"
-          style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)", color: "#f9f1e0", fontWeight: 300 }}
+          style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)", color: "var(--parchment-100)", fontWeight: 300 }}
         >
           Archives
         </h1>
-        <p className="font-serif text-lg" style={{ color: "rgba(249,241,224,0.45)" }}>
+        <p className="font-serif text-lg" style={{ color: "rgba(var(--text-rgb),0.60)" }}>
           Toutes les dévotions publiées
         </p>
       </div>
@@ -35,9 +35,9 @@ export default function ArchivePage() {
             onClick={() => setSelectedTag(null)}
             className="font-sans text-xs px-4 py-1.5 rounded-full transition-all"
             style={{
-              background: !selectedTag ? "rgba(201,168,76,0.12)" : "rgba(201,168,76,0.04)",
-              border: `1px solid ${!selectedTag ? "rgba(201,168,76,0.4)" : "rgba(201,168,76,0.1)"}`,
-              color: !selectedTag ? "#C9A84C" : "rgba(249,241,224,0.5)",
+              background: !selectedTag ? "rgba(var(--gold-rgb),0.12)" : "rgba(var(--gold-rgb),0.04)",
+              border: `1px solid ${!selectedTag ? "rgba(var(--gold-rgb),0.4)" : "rgba(var(--gold-rgb),0.1)"}`,
+              color: !selectedTag ? "var(--gold)" : "rgba(var(--text-rgb),0.65)",
             }}
           >
             Tous
@@ -48,9 +48,9 @@ export default function ArchivePage() {
               onClick={() => setSelectedTag(tag.name)}
               className="font-sans text-xs px-4 py-1.5 rounded-full transition-all"
               style={{
-                background: selectedTag === tag.name ? "rgba(201,168,76,0.12)" : "rgba(201,168,76,0.04)",
-                border: `1px solid ${selectedTag === tag.name ? "rgba(201,168,76,0.4)" : "rgba(201,168,76,0.1)"}`,
-                color: selectedTag === tag.name ? "#C9A84C" : "rgba(249,241,224,0.5)",
+                background: selectedTag === tag.name ? "rgba(var(--gold-rgb),0.12)" : "rgba(var(--gold-rgb),0.04)",
+                border: `1px solid ${selectedTag === tag.name ? "rgba(var(--gold-rgb),0.4)" : "rgba(var(--gold-rgb),0.1)"}`,
+                color: selectedTag === tag.name ? "var(--gold)" : "rgba(var(--text-rgb),0.65)",
               }}
             >
               {tag.name} ({tag.count})
@@ -67,7 +67,7 @@ export default function ArchivePage() {
         </div>
       ) : devotionals.length === 0 ? (
         <div className="text-center py-24">
-          <p className="font-display text-2xl" style={{ color: "rgba(249,241,224,0.25)" }}>
+          <p className="font-display text-2xl" style={{ color: "rgba(var(--text-rgb),0.40)" }}>
             {selectedTag ? "Aucune dévotion avec ce tag" : "Aucune dévotion pour l'instant"}
           </p>
         </div>

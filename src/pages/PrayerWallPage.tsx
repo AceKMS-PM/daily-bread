@@ -39,14 +39,14 @@ export default function PrayerWallPage() {
     <div className="max-w-4xl mx-auto px-6 py-16">
       {/* Header */}
       <div className="text-center mb-14 fade-up">
-        <CrossIcon size={32} color="rgba(201,168,76,0.4)" className="mx-auto mb-6" />
+        <CrossIcon size={32} color="rgba(var(--gold-rgb),0.4)" className="mx-auto mb-6" />
         <h1
           className="font-display mb-4"
-          style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "#f9f1e0", fontWeight: 300 }}
+          style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)", color: "var(--parchment-100)", fontWeight: 300 }}
         >
           Mur de Prière
         </h1>
-        <p className="font-serif text-lg" style={{ color: "rgba(249,241,224,0.45)" }}>
+        <p className="font-serif text-lg" style={{ color: "rgba(var(--text-rgb),0.60)" }}>
           « Portez les fardeaux les uns des autres » — Galates 6:2
         </p>
       </div>
@@ -56,8 +56,8 @@ export default function PrayerWallPage() {
         <div
           className="p-8 rounded-2xl mb-12 fade-up animate-delay-100"
           style={{
-            background: "linear-gradient(135deg, rgba(26,19,8,0.9) 0%, rgba(42,31,14,0.9) 100%)",
-            border: "1px solid rgba(201,168,76,0.2)",
+            background: "linear-gradient(135deg, rgba(var(--surface-rgb),0.9) 0%, rgba(var(--warm-rgb),0.9) 100%)",
+            border: "1px solid rgba(var(--gold-rgb),0.2)",
           }}
         >
           <h3 className="font-display text-xl text-parchment-100 mb-4">Partager une prière</h3>
@@ -73,36 +73,36 @@ export default function PrayerWallPage() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <div
                   className="w-10 h-6 rounded-full relative transition-colors duration-200"
-                  style={{ background: isPublic ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.1)" }}
+                  style={{ background: isPublic ? "rgba(var(--gold-rgb),0.4)" : "rgba(var(--white-rgb),0.1)" }}
                   onClick={() => setIsPublic(!isPublic)}
                 >
                   <div
                     className="absolute top-1 w-4 h-4 rounded-full transition-transform duration-200"
                     style={{
-                      background: isPublic ? "#C9A84C" : "rgba(255,255,255,0.5)",
+                      background: isPublic ? "var(--gold)" : "rgba(var(--white-rgb),0.5)",
                       transform: isPublic ? "translateX(18px)" : "translateX(4px)",
                     }}
                   />
                 </div>
-                <span className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.5)" }}>
+                <span className="font-sans text-sm" style={{ color: "rgba(var(--text-rgb),0.65)" }}>
                   {isPublic ? "Public" : "Privé (admin seulement)"}
                 </span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <div
                   className="w-10 h-6 rounded-full relative transition-colors duration-200"
-                  style={{ background: isAnonymous ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.1)" }}
+                  style={{ background: isAnonymous ? "rgba(var(--gold-rgb),0.4)" : "rgba(var(--white-rgb),0.1)" }}
                   onClick={() => setIsAnonymous(!isAnonymous)}
                 >
                   <div
                     className="absolute top-1 w-4 h-4 rounded-full transition-transform duration-200"
                     style={{
-                      background: isAnonymous ? "#C9A84C" : "rgba(255,255,255,0.5)",
+                      background: isAnonymous ? "var(--gold)" : "rgba(var(--white-rgb),0.5)",
                       transform: isAnonymous ? "translateX(18px)" : "translateX(4px)",
                     }}
                   />
                 </div>
-                <span className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.5)" }}>
+                <span className="font-sans text-sm" style={{ color: "rgba(var(--text-rgb),0.65)" }}>
                   Rester anonyme
                 </span>
               </label>
@@ -120,9 +120,9 @@ export default function PrayerWallPage() {
       ) : (
         <div
           className="p-6 rounded-2xl mb-12 text-center"
-          style={{ border: "1px dashed rgba(201,168,76,0.2)" }}
+          style={{ border: "1px dashed rgba(var(--gold-rgb),0.2)" }}
         >
-          <p className="font-serif" style={{ color: "rgba(249,241,224,0.4)" }}>
+          <p className="font-serif" style={{ color: "rgba(var(--text-rgb),0.55)" }}>
             Connecte-toi pour partager une demande de prière.
           </p>
         </div>
@@ -139,15 +139,15 @@ export default function PrayerWallPage() {
                 key={p._id}
                 className="p-6 rounded-xl transition-all duration-200 relative group"
                 style={{
-                  background: "rgba(201,168,76,0.04)",
-                  border: "1px solid rgba(201,168,76,0.1)",
+                  background: "rgba(var(--gold-rgb),0.04)",
+                  border: "1px solid rgba(var(--gold-rgb),0.1)",
                 }}
               >
                 {currentUser?._id === p.userId && (
                   <button
                     onClick={async () => { if (confirm("Supprimer cette demande de prière ?")) await deletePrayer({ id: p._id }); }}
                     className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                    style={{ color: "rgba(196,68,68,0.6)" }}
+                    style={{ color: "rgba(var(--crimson-light-rgb),0.6)" }}
                     title="Supprimer"
                   >
                     <Trash2 size={14} />
@@ -155,20 +155,20 @@ export default function PrayerWallPage() {
                 )}
                 <div className="flex items-center gap-3 mb-4">
                   <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-sacred-dark flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg, #C9A84C, #E8C97A)" }}
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-text-on-gold flex-shrink-0"
+                    style={{ background: "var(--gradient-gold)" }}
                   >
                     {p.user?.name?.[0]?.toUpperCase() ?? "?"}
                   </div>
                   <div>
                     <p className="font-sans text-sm text-parchment-100">{p.user?.name ?? "Anonyme"}</p>
-                    <p className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.3)" }}>
+                    <p className="font-sans text-xs" style={{ color: "rgba(var(--text-rgb),0.45)" }}>
                       {format(new Date(p.createdAt), "d MMMM yyyy", { locale: fr })}
                     </p>
                   </div>
                 </div>
 
-                <p className="font-serif mb-4" style={{ color: "rgba(249,241,224,0.65)", lineHeight: 1.8, fontSize: "0.95rem" }}>
+                <p className="font-serif mb-4" style={{ color: "rgba(var(--text-rgb),0.80)", lineHeight: 1.8, fontSize: "0.95rem" }}>
                   {p.content}
                 </p>
               </div>

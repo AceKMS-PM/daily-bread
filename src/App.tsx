@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthLoading, useConvexAuth } from "convex/react";
+import ThemeProvider from "@/components/ThemeProvider";
 import Layout from "@/components/layout/Layout";
 import AdminLayout from "@/components/layout/AdminLayout";
 import AdminGuard from "@/components/layout/AdminGuard";
@@ -27,7 +28,7 @@ function RedirectIfAuthenticated({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <>
+    <ThemeProvider>
       <AuthLoading>
         <LoadingScreen />
       </AuthLoading>
@@ -64,6 +65,6 @@ export default function App() {
           </Route>
         </Route>
       </Routes>
-    </>
+    </ThemeProvider>
   );
 }

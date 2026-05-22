@@ -4,7 +4,7 @@ interface CrossIconProps {
   className?: string;
 }
 
-export default function CrossIcon({ size = 24, color = "#C9A84C", className = "" }: CrossIconProps) {
+export default function CrossIcon({ size = 24, color = "var(--gold)", className = "" }: CrossIconProps) {
   return (
     <svg
       width={size}

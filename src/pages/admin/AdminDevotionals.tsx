@@ -19,7 +19,7 @@ export default function AdminDevotionals() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-display text-3xl text-parchment-100">Dévotions</h1>
-          <p className="font-sans text-sm mt-1" style={{ color: "rgba(249,241,224,0.4)" }}>
+          <p className="font-sans text-sm mt-1" style={{ color: "rgba(var(--text-rgb),0.55)" }}>
             {devotionals?.length ?? 0} dévotions au total
           </p>
         </div>
@@ -31,12 +31,12 @@ export default function AdminDevotionals() {
       {devotionals === undefined ? (
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "rgba(201,168,76,0.05)" }} />
+            <div key={i} className="h-16 rounded-xl animate-pulse" style={{ background: "rgba(var(--gold-rgb),0.05)" }} />
           ))}
         </div>
       ) : devotionals.length === 0 ? (
         <div className="text-center py-20">
-          <p className="font-display text-xl" style={{ color: "rgba(249,241,224,0.25)" }}>
+          <p className="font-display text-xl" style={{ color: "rgba(var(--text-rgb),0.40)" }}>
             Aucune dévotion encore créée
           </p>
           <Link to="/admin/devotionals/new" className="btn-gold mt-6 inline-block">
@@ -50,19 +50,19 @@ export default function AdminDevotionals() {
               key={d._id}
               className="flex items-center gap-4 p-5 rounded-xl transition-all"
               style={{
-                background: "rgba(26,19,8,0.7)",
-                border: "1px solid rgba(201,168,76,0.08)",
+                background: "rgba(var(--surface-rgb),0.7)",
+                border: "1px solid rgba(var(--gold-rgb),0.08)",
               }}
             >
               {/* Date badge */}
               <div
                 className="flex-shrink-0 text-center px-3 py-2 rounded-lg"
-                style={{ background: "rgba(201,168,76,0.08)", minWidth: 70 }}
+                style={{ background: "rgba(var(--gold-rgb),0.08)", minWidth: 70 }}
               >
-                <p className="font-sans text-xs" style={{ color: "rgba(201,168,76,0.5)" }}>
+                <p className="font-sans text-xs" style={{ color: "rgba(var(--gold-rgb),0.5)" }}>
                   {format(new Date(d.scheduledFor), "MMM", { locale: fr }).toUpperCase()}
                 </p>
-                <p className="font-display text-xl" style={{ color: "#C9A84C" }}>
+                <p className="font-display text-xl" style={{ color: "var(--gold)" }}>
                   {format(new Date(d.scheduledFor), "d")}
                 </p>
               </div>
@@ -70,7 +70,7 @@ export default function AdminDevotionals() {
               {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="font-serif text-parchment-100 truncate">{d.title}</p>
-                <p className="font-sans text-xs mt-0.5" style={{ color: "rgba(249,241,224,0.35)" }}>
+                <p className="font-sans text-xs mt-0.5" style={{ color: "rgba(var(--text-rgb),0.50)" }}>
                   {d.bibleBook} {d.bibleChapter}:{d.bibleVerseStart} · {d.bibleTranslation}
                   {d.author && ` · ${d.author.name}`}
                 </p>
@@ -82,22 +82,22 @@ export default function AdminDevotionals() {
                 style={{
                   background:
                     d.status === "published"
-                      ? "rgba(124,140,90,0.15)"
+                      ? "rgba(var(--olive-rgb),0.15)"
                       : d.status === "scheduled"
-                      ? "rgba(201,168,76,0.1)"
-                      : "rgba(255,255,255,0.04)",
+                      ? "rgba(var(--gold-rgb),0.1)"
+                      : "rgba(var(--white-rgb),0.04)",
                   color:
                     d.status === "published"
-                      ? "#A4B478"
+                      ? "var(--olive-light)"
                       : d.status === "scheduled"
-                      ? "#C9A84C"
-                      : "rgba(249,241,224,0.3)",
+                      ? "var(--gold)"
+                      : "rgba(var(--text-rgb),0.45)",
                   border: `1px solid ${
                     d.status === "published"
-                      ? "rgba(124,140,90,0.3)"
+                      ? "rgba(var(--olive-rgb),0.3)"
                       : d.status === "scheduled"
-                      ? "rgba(201,168,76,0.2)"
-                      : "rgba(255,255,255,0.05)"
+                      ? "rgba(var(--gold-rgb),0.2)"
+                      : "rgba(var(--white-rgb),0.05)"
                   }`,
                 }}
               >
@@ -110,21 +110,21 @@ export default function AdminDevotionals() {
                   to={`/devotional/${d.scheduledFor}`}
                   target="_blank"
                   className="p-2 rounded-lg hover:bg-white/5 transition-colors"
-                  style={{ color: "rgba(249,241,224,0.3)" }}
+                  style={{ color: "rgba(var(--text-rgb),0.45)" }}
                 >
                   <Eye size={16} />
                 </Link>
                 <Link
                   to={`/admin/devotionals/${d._id}/edit`}
                   className="p-2 rounded-lg hover:bg-white/5 transition-colors"
-                  style={{ color: "rgba(201,168,76,0.5)" }}
+                  style={{ color: "rgba(var(--gold-rgb),0.5)" }}
                 >
                   <Edit size={16} />
                 </Link>
                 <button
                   onClick={() => handleDelete(d._id)}
                   className="p-2 rounded-lg hover:bg-red-500/10 transition-colors"
-                  style={{ color: "rgba(139,32,32,0.6)" }}
+                  style={{ color: "rgba(var(--crimson-rgb),0.6)" }}
                 >
                   <Trash2 size={16} />
                 </button>

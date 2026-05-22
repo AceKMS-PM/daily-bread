@@ -66,7 +66,7 @@ export default function DevotionalPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div style={{ animation: "float 2s ease-in-out infinite" }}>
-          <CrossIcon size={40} color="rgba(201,168,76,0.3)" />
+          <CrossIcon size={40} color="rgba(var(--gold-rgb),0.3)" />
         </div>
       </div>
     );
@@ -75,8 +75,8 @@ export default function DevotionalPage() {
   if (devotional === null) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-6">
-        <CrossIcon size={40} color="rgba(201,168,76,0.2)" />
-        <h2 className="font-display text-2xl" style={{ color: "rgba(249,241,224,0.4)" }}>
+        <CrossIcon size={40} color="rgba(var(--gold-rgb),0.2)" />
+        <h2 className="font-display text-2xl" style={{ color: "rgba(var(--text-rgb),0.55)" }}>
           Dévotion introuvable
         </h2>
         <Link to="/" className="btn-ghost" style={{ padding: "0.5rem 1.5rem" }}>
@@ -103,26 +103,26 @@ export default function DevotionalPage() {
         <div
           className="absolute inset-0"
           style={{
-            background: "linear-gradient(to bottom, rgba(26, 19, 8, 0) 0%, rgba(22, 19, 14, 0.9) 80%, #16130e 100%)",
+            background: "linear-gradient(to bottom, rgba(var(--surface-rgb), 0) 0%, rgba(var(--surface-rgb), 0.9) 80%, rgba(var(--body-rgb), 1) 100%)",
           }}
         />
         <div className="absolute inset-0 flex flex-col justify-end items-center pb-12 px-6">
           <div className="w-full max-w-3xl text-center">
             <span
               className="font-sans text-xs tracking-widest uppercase mb-4 block"
-              style={{ color: "rgba(201,168,76,0.7)", letterSpacing: "0.2em" }}
+              style={{ color: "rgba(var(--gold-rgb),0.7)", letterSpacing: "0.2em" }}
             >
               {formattedDate}
             </span>
             <h1
               className="font-display mb-2"
-              style={{ fontSize: "clamp(2rem, 5vw, 4rem)", color: "#f9f1e0", lineHeight: 1.1 }}
+              style={{ fontSize: "clamp(2rem, 5vw, 4rem)", color: "rgb(var(--text-rgb))", lineHeight: 1.1 }}
             >
               {devotional.title}
             </h1>
             <p
               className="font-serif italic"
-              style={{ fontSize: "1.1rem", color: "rgba(201,168,76,0.7)" }}
+              style={{ fontSize: "1.1rem", color: "rgba(var(--gold-rgb),0.7)" }}
             >
               {devotional.bibleBook} {devotional.bibleChapter}:{devotional.bibleVerseStart}
               {devotional.bibleVerseEnd ? `-${devotional.bibleVerseEnd}` : ""}
@@ -137,7 +137,7 @@ export default function DevotionalPage() {
         <Link
           to="/"
           className="flex items-center gap-2 font-sans text-sm transition-colors"
-          style={{ color: "rgba(201,168,76,0.5)" }}
+          style={{ color: "rgba(var(--gold-rgb),0.5)" }}
         >
           <ArrowLeft size={16} /> Retour
         </Link>
@@ -146,26 +146,26 @@ export default function DevotionalPage() {
         <div
           className="rounded-xl p-8 md:p-12 relative overflow-hidden"
           style={{
-            background: "linear-gradient(180deg, rgba(26,19,8,0.6) 0%, rgba(42,31,14,0.4) 100%)",
-            border: "1px solid rgba(201,168,76,0.12)",
+            background: "linear-gradient(180deg, rgba(var(--surface-rgb),0.6) 0%, rgba(var(--warm-rgb),0.4) 100%)",
+            border: "1px solid rgba(var(--gold-rgb),0.12)",
           }}
         >
           <div
             className="absolute -top-4 -left-4 font-display select-none pointer-events-none"
-            style={{ fontSize: "clamp(4rem, 10vw, 8rem)", lineHeight: 1, color: "rgba(201,168,76,0.05)" }}
+            style={{ fontSize: "clamp(4rem, 10vw, 8rem)", lineHeight: 1, color: "rgba(var(--gold-rgb),0.05)" }}
           >
             "
           </div>
           <div className="relative z-10 text-center">
             <blockquote
               className="font-serif italic mb-6 leading-relaxed"
-              style={{ fontSize: "clamp(1.1rem, 2vw, 1.3rem)", color: "#f9f1e0", lineHeight: 1.8 }}
+              style={{ fontSize: "clamp(1.1rem, 2vw, 1.3rem)", color: "rgb(var(--text-rgb))", lineHeight: 1.8 }}
             >
               « {devotional.bibleText} »
             </blockquote>
             <cite
               className="font-sans text-xs tracking-widest uppercase not-italic"
-              style={{ color: "rgba(201,168,76,0.7)" }}
+              style={{ color: "rgba(var(--gold-rgb),0.7)" }}
             >
               — {devotional.bibleBook} {devotional.bibleChapter}:{devotional.bibleVerseStart}
               {devotional.bibleVerseEnd ? `-${devotional.bibleVerseEnd}` : ""} · {devotional.bibleTranslation}
@@ -177,7 +177,7 @@ export default function DevotionalPage() {
         <div className="space-y-8">
           <div
             className="font-serif leading-relaxed"
-            style={{ fontSize: "1.1rem", color: "rgba(249,241,224,0.75)", lineHeight: 1.9, whiteSpace: "pre-wrap" }}
+            style={{ fontSize: "1.1rem", color: "rgba(var(--text-rgb),0.90)", lineHeight: 1.9, whiteSpace: "pre-wrap" }}
           >
             {devotional.content}
           </div>
@@ -188,21 +188,21 @@ export default function DevotionalPage() {
           {devotional.reflection && (
             <section>
               <div className="flex items-center gap-4 mb-4">
-                <div className="h-px flex-1" style={{ background: "rgba(201,168,76,0.15)" }} />
+                <div className="h-px flex-1" style={{ background: "rgba(var(--gold-rgb),0.15)" }} />
                 <h2
                   className="font-sans text-xs tracking-widest uppercase"
-                  style={{ color: "rgba(201,168,76,0.7)", letterSpacing: "0.2em" }}
+                  style={{ color: "rgba(var(--gold-rgb),0.7)", letterSpacing: "0.2em" }}
                 >
                   Réflexion
                 </h2>
-                <div className="h-px flex-1" style={{ background: "rgba(201,168,76,0.15)" }} />
+                <div className="h-px flex-1" style={{ background: "rgba(var(--gold-rgb),0.15)" }} />
               </div>
               <div
                 className="p-6 rounded-lg italic"
                 style={{
-                  background: "rgba(42,31,14,0.3)",
-                  border: "1px solid rgba(201,168,76,0.1)",
-                  color: "rgba(249,241,224,0.65)",
+                  background: "rgba(var(--warm-rgb),0.3)",
+                  border: "1px solid rgba(var(--gold-rgb),0.1)",
+                  color: "rgba(var(--text-rgb),0.80)",
                   lineHeight: 1.8,
                 }}
               >
@@ -214,18 +214,18 @@ export default function DevotionalPage() {
           {devotional.prayer && (
             <section>
               <div className="flex items-center gap-4 mb-4">
-                <div className="h-px flex-1" style={{ background: "rgba(201,168,76,0.15)" }} />
+                <div className="h-px flex-1" style={{ background: "rgba(var(--gold-rgb),0.15)" }} />
                 <h2
                   className="font-sans text-xs tracking-widest uppercase"
-                  style={{ color: "rgba(201,168,76,0.7)", letterSpacing: "0.2em" }}
+                  style={{ color: "rgba(var(--gold-rgb),0.7)", letterSpacing: "0.2em" }}
                 >
                   Prière
                 </h2>
-                <div className="h-px flex-1" style={{ background: "rgba(201,168,76,0.15)" }} />
+                <div className="h-px flex-1" style={{ background: "rgba(var(--gold-rgb),0.15)" }} />
               </div>
               <div
                 className="font-serif leading-relaxed text-center px-4"
-                style={{ fontSize: "1.05rem", color: "rgba(249,241,224,0.6)", lineHeight: 1.9 }}
+                style={{ fontSize: "1.05rem", color: "rgba(var(--text-rgb),0.75)", lineHeight: 1.9 }}
               >
                 {devotional.prayer}
               </div>
@@ -241,9 +241,9 @@ export default function DevotionalPage() {
                 key={tag}
                 className="font-sans text-xs px-3 py-1 rounded-full"
                 style={{
-                  background: "rgba(201,168,76,0.06)",
-                  border: "1px solid rgba(201,168,76,0.18)",
-                  color: "rgba(201,168,76,0.7)",
+                  background: "rgba(var(--gold-rgb),0.06)",
+                  border: "1px solid rgba(var(--gold-rgb),0.18)",
+                  color: "rgba(var(--gold-rgb),0.7)",
                 }}
               >
                 {tag}
@@ -255,7 +255,7 @@ export default function DevotionalPage() {
         {/* Reactions Bar */}
         <div
           className="flex justify-center items-center gap-6 md:gap-8 py-12"
-          style={{ borderTop: "1px solid rgba(201,168,76,0.1)" }}
+          style={{ borderTop: "1px solid rgba(var(--gold-rgb),0.1)" }}
         >
           {REACTION_CONFIG.map(({ type, label }) => {
             const count = reactionCounts?.counts[type] ?? 0;
@@ -273,21 +273,21 @@ export default function DevotionalPage() {
                 <div
                   className="w-12 h-12 rounded-full flex items-center justify-center transition-all"
                   style={{
-                    border: `1px solid ${hasCount ? "rgba(201,168,76,0.5)" : "rgba(201,168,76,0.15)"}`,
-                    background: hasCount ? "rgba(42,31,14,0.6)" : "transparent",
+                    border: `1px solid ${hasCount ? "rgba(var(--gold-rgb),0.7)" : "rgba(var(--gold-rgb),0.25)"}`,
+                    background: hasCount ? "rgba(var(--warm-rgb),0.6)" : "transparent",
                   }}
                 >
-                  {REACTION_SVG[type](hasCount, hasCount ? "#C9A84C" : "rgba(201,168,76,0.5)")}
+                  {REACTION_SVG[type](hasCount, hasCount ? "var(--gold)" : "rgba(var(--gold-rgb),0.7)")}
                 </div>
                 <span
                   className="font-sans text-[10px] tracking-tighter"
-                  style={{ color: hasCount ? "rgba(201,168,76,0.9)" : "rgba(201,168,76,0.4)" }}
+                  style={{ color: hasCount ? "rgba(var(--gold-rgb),0.9)" : "rgba(var(--gold-rgb),0.6)" }}
                 >
                   {label}
                 </span>
                 <span
                   className="font-sans text-xs tabular-nums -mt-1"
-                  style={{ color: hasCount ? "#C9A84C" : "rgba(201,168,76,0.3)" }}
+                  style={{ color: hasCount ? "var(--gold)" : "rgba(var(--gold-rgb),0.5)" }}
                 >
                   {count}
                 </span>
@@ -299,14 +299,14 @@ export default function DevotionalPage() {
         {/* Share */}
         <div className="pt-6 pb-2">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="font-sans text-xs uppercase tracking-widest" style={{ color: "rgba(249,241,224,0.3)" }}>
+            <span className="font-sans text-xs uppercase tracking-widest" style={{ color: "rgba(var(--text-rgb),0.45)" }}>
               Partager
             </span>
             <a
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(devotional.title)}&url=${encodeURIComponent(window.location.origin + "/devotional/" + devotional.scheduledFor)}`}
               target="_blank" rel="noopener noreferrer"
               className="text-xs font-sans px-3 py-1.5 rounded-lg transition-colors"
-              style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(249,241,224,0.5)" }}
+              style={{ border: "1px solid rgba(var(--white-rgb),0.08)", color: "rgba(var(--text-rgb),0.65)" }}
             >
               X / Twitter
             </a>
@@ -314,7 +314,7 @@ export default function DevotionalPage() {
               href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.origin + "/devotional/" + devotional.scheduledFor)}`}
               target="_blank" rel="noopener noreferrer"
               className="text-xs font-sans px-3 py-1.5 rounded-lg transition-colors"
-              style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(249,241,224,0.5)" }}
+              style={{ border: "1px solid rgba(var(--white-rgb),0.08)", color: "rgba(var(--text-rgb),0.65)" }}
             >
               Facebook
             </a>
@@ -322,7 +322,7 @@ export default function DevotionalPage() {
               href={`https://wa.me/?text=${encodeURIComponent(devotional.title + " " + window.location.origin + "/devotional/" + devotional.scheduledFor)}`}
               target="_blank" rel="noopener noreferrer"
               className="text-xs font-sans px-3 py-1.5 rounded-lg transition-colors"
-              style={{ border: "1px solid rgba(255,255,255,0.08)", color: "rgba(249,241,224,0.5)" }}
+              style={{ border: "1px solid rgba(var(--white-rgb),0.08)", color: "rgba(var(--text-rgb),0.65)" }}
             >
               WhatsApp
             </a>
@@ -331,16 +331,16 @@ export default function DevotionalPage() {
 
         {/* Author */}
         {devotional.author && (
-          <div className="flex items-center gap-3 pt-6" style={{ borderTop: "1px solid rgba(201,168,76,0.08)" }}>
+          <div className="flex items-center gap-3 pt-6" style={{ borderTop: "1px solid rgba(var(--gold-rgb),0.08)" }}>
             <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-sacred-dark"
-              style={{ background: "linear-gradient(135deg, #C9A84C, #E8C97A)" }}
+              className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-text-on-gold"
+              style={{ background: "var(--gradient-gold)" }}
             >
               {devotional.author.name?.[0]?.toUpperCase()}
             </div>
             <div>
               <p className="font-sans text-sm text-parchment-100">{devotional.author.name}</p>
-              <p className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.35)" }}>
+              <p className="font-sans text-xs" style={{ color: "rgba(var(--text-rgb),0.50)" }}>
                 {format(new Date(devotional.scheduledFor), "d MMMM yyyy", { locale: fr })}
               </p>
             </div>
@@ -352,7 +352,7 @@ export default function DevotionalPage() {
           <section className="pt-8">
             <h3
               className="font-display text-xl mb-8"
-              style={{ color: "#f9f1e0" }}
+              style={{ color: "var(--parchment-100)" }}
             >
               Aller plus loin
             </h3>
@@ -363,23 +363,23 @@ export default function DevotionalPage() {
                   to={`/devotional/${d.scheduledFor}`}
                   className="group rounded-xl p-6 transition-all hover:-translate-y-0.5"
                   style={{
-                    background: "linear-gradient(180deg, rgba(26,19,8,0.6) 0%, rgba(42,31,14,0.4) 100%)",
-                    border: "1px solid rgba(201,168,76,0.1)",
+                    background: "linear-gradient(180deg, rgba(var(--surface-rgb),0.6) 0%, rgba(var(--warm-rgb),0.4) 100%)",
+                    border: "1px solid rgba(var(--gold-rgb),0.1)",
                   }}
                 >
                   <div className="flex justify-between items-start mb-4">
-                    <span className="font-sans text-xs tracking-widest uppercase" style={{ color: "rgba(201,168,76,0.7)" }}>
+                    <span className="font-sans text-xs tracking-widest uppercase" style={{ color: "rgba(var(--gold-rgb),0.7)" }}>
                       Dévotion
                     </span>
                     <span
                       className="font-sans text-sm transition-colors group-hover:translate-x-0.5 transition-transform"
-                      style={{ color: "rgba(201,168,76,0.4)" }}
+                      style={{ color: "rgba(var(--gold-rgb),0.4)" }}
                     >
                       →
                     </span>
                   </div>
                   <h4 className="font-display text-lg mb-2 text-parchment-100">{d.title}</h4>
-                  <p className="font-serif text-sm line-clamp-2" style={{ color: "rgba(249,241,224,0.5)" }}>
+                  <p className="font-serif text-sm line-clamp-2" style={{ color: "rgba(var(--text-rgb),0.65)" }}>
                     {d.content?.slice(0, 120)}...
                   </p>
                 </Link>
@@ -392,7 +392,7 @@ export default function DevotionalPage() {
         <section className="pt-12">
           <h3
             className="font-display text-xl mb-8"
-            style={{ color: "#f9f1e0" }}
+            style={{ color: "var(--parchment-100)" }}
           >
             Commentaires
           </h3>
@@ -401,8 +401,8 @@ export default function DevotionalPage() {
             <div
               className="p-6 rounded-xl mb-8"
               style={{
-                background: "rgba(26,19,8,0.6)",
-                border: "1px solid rgba(201,168,76,0.12)",
+                background: "rgba(var(--surface-rgb),0.6)",
+                border: "1px solid rgba(var(--gold-rgb),0.12)",
               }}
             >
               <textarea
@@ -412,8 +412,8 @@ export default function DevotionalPage() {
                 rows={3}
                 className="w-full bg-transparent border rounded-lg p-4 font-serif text-sm resize-none outline-none transition-colors mb-4"
                 style={{
-                  borderColor: "rgba(201,168,76,0.2)",
-                  color: "rgba(249,241,224,0.75)",
+                  borderColor: "rgba(var(--gold-rgb),0.2)",
+                  color: "rgba(var(--text-rgb),0.90)",
                   lineHeight: 1.8,
                 }}
                 maxLength={1000}
@@ -422,18 +422,18 @@ export default function DevotionalPage() {
                 <label className="flex items-center gap-3 cursor-pointer">
                   <div
                     className="w-10 h-6 rounded-full relative transition-colors duration-200"
-                    style={{ background: commentAnon ? "rgba(201,168,76,0.4)" : "rgba(255,255,255,0.1)" }}
+                    style={{ background: commentAnon ? "rgba(var(--gold-rgb),0.4)" : "rgba(var(--white-rgb),0.1)" }}
                     onClick={() => setCommentAnon(!commentAnon)}
                   >
                     <div
                       className="absolute top-1 w-4 h-4 rounded-full transition-transform duration-200"
                       style={{
-                        background: commentAnon ? "#C9A84C" : "rgba(255,255,255,0.5)",
+                        background: commentAnon ? "var(--gold)" : "rgba(var(--white-rgb),0.5)",
                         transform: commentAnon ? "translateX(18px)" : "translateX(4px)",
                       }}
                     />
                   </div>
-                  <span className="font-sans text-sm" style={{ color: "rgba(249,241,224,0.5)" }}>
+                  <span className="font-sans text-sm" style={{ color: "rgba(var(--text-rgb),0.65)" }}>
                     Rester anonyme
                   </span>
                 </label>
@@ -461,9 +461,9 @@ export default function DevotionalPage() {
           ) : (
             <div
               className="p-6 rounded-xl mb-8 text-center"
-              style={{ border: "1px dashed rgba(201,168,76,0.2)" }}
+              style={{ border: "1px dashed rgba(var(--gold-rgb),0.2)" }}
             >
-              <p className="font-serif text-sm" style={{ color: "rgba(249,241,224,0.4)" }}>
+              <p className="font-serif text-sm" style={{ color: "rgba(var(--text-rgb),0.55)" }}>
                 Connecte-toi pour ajouter un commentaire.
               </p>
             </div>
@@ -472,11 +472,11 @@ export default function DevotionalPage() {
           {comments === undefined ? (
             <div className="space-y-4">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="rounded-xl p-5 h-24 animate-pulse" style={{ background: "rgba(26,19,8,0.6)" }} />
+                <div key={i} className="rounded-xl p-5 h-24 animate-pulse" style={{ background: "rgba(var(--surface-rgb),0.6)" }} />
               ))}
             </div>
           ) : comments.length === 0 ? (
-            <p className="font-serif text-sm text-center py-8" style={{ color: "rgba(249,241,224,0.25)" }}>
+            <p className="font-serif text-sm text-center py-8" style={{ color: "rgba(var(--text-rgb),0.40)" }}>
               Aucun commentaire pour l'instant.
             </p>
           ) : (
@@ -486,15 +486,15 @@ export default function DevotionalPage() {
                   key={c._id}
                   className="p-5 rounded-xl relative group"
                   style={{
-                    background: "rgba(201,168,76,0.03)",
-                    border: "1px solid rgba(201,168,76,0.08)",
+                    background: "rgba(var(--gold-rgb),0.03)",
+                    border: "1px solid rgba(var(--gold-rgb),0.08)",
                   }}
                 >
                   {currentUser?._id === c.userId && (
                     <button
                       onClick={async () => { if (confirm("Supprimer ce commentaire ?")) await deleteComment({ id: c._id }); }}
                       className="absolute top-3 right-3 p-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-opacity"
-                      style={{ color: "rgba(196,68,68,0.6)" }}
+                      style={{ color: "rgba(var(--crimson-light-rgb),0.6)" }}
                       title="Supprimer"
                     >
                       <Trash2 size={14} />
@@ -502,19 +502,19 @@ export default function DevotionalPage() {
                   )}
                   <div className="flex items-center gap-3 mb-3">
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-sacred-dark flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg, #C9A84C, #E8C97A)" }}
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-text-on-gold flex-shrink-0"
+                      style={{ background: "var(--gradient-gold)" }}
                     >
                       {c.user?.name?.[0]?.toUpperCase() ?? "?"}
                     </div>
                     <div>
                       <p className="font-sans text-sm text-parchment-100">{c.user?.name ?? "Anonyme"}</p>
-                      <p className="font-sans text-xs" style={{ color: "rgba(249,241,224,0.3)" }}>
+                      <p className="font-sans text-xs" style={{ color: "rgba(var(--text-rgb),0.45)" }}>
                         {format(new Date(c.createdAt), "d MMMM yyyy", { locale: fr })}
                       </p>
                     </div>
                   </div>
-                  <p className="font-serif text-sm leading-relaxed" style={{ color: "rgba(249,241,224,0.65)", lineHeight: 1.8 }}>
+                  <p className="font-serif text-sm leading-relaxed" style={{ color: "rgba(var(--text-rgb),0.80)", lineHeight: 1.8 }}>
                     {c.content}
                   </p>
                 </div>
@@ -526,12 +526,12 @@ export default function DevotionalPage() {
         {/* Bottom Navigation */}
         <div
           className="flex justify-between pt-10"
-          style={{ borderTop: "1px solid rgba(201,168,76,0.08)" }}
+          style={{ borderTop: "1px solid rgba(var(--gold-rgb),0.08)" }}
         >
-          <Link to="/archives" className="font-sans text-sm" style={{ color: "rgba(201,168,76,0.5)" }}>
+          <Link to="/archives" className="font-sans text-sm" style={{ color: "rgba(var(--gold-rgb),0.5)" }}>
             ← Toutes les dévotions
           </Link>
-          <Link to="/" className="font-sans text-sm" style={{ color: "rgba(201,168,76,0.5)" }}>
+          <Link to="/" className="font-sans text-sm" style={{ color: "rgba(var(--gold-rgb),0.5)" }}>
             Accueil →
           </Link>
         </div>
