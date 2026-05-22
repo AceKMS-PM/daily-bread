@@ -82,6 +82,16 @@ export default function Layout() {
           </div>
         </NavLink>
 
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center justify-center w-8 h-8 rounded-full transition-all hover:bg-white/5"
+          style={{ color: "rgba(var(--gold-rgb), 0.6)" }}
+          title={theme === "dark" ? "Mode clair" : "Mode sombre"}
+        >
+          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+        </button>
+
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
@@ -137,16 +147,6 @@ export default function Layout() {
             </button>
           )}
         </div>
-
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="flex items-center justify-center w-8 h-8 rounded-full transition-all hover:bg-white/5"
-          style={{ color: "rgba(var(--gold-rgb), 0.6)" }}
-          title={theme === "dark" ? "Mode clair" : "Mode sombre"}
-        >
-          {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-        </button>
 
         {/* Mobile toggle */}
         <button
